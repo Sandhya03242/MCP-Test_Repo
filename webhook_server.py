@@ -13,6 +13,8 @@ async def handle_webhook(request):
             "event_type":request.headers.get("X-GitHub-Event","unknown"),
             "action":data.get("action"),
             "repository": data.get("repository",{}),
+            "title":data.get("title"),
+            "description":data.get("body"),
             "sender":data.get("sender",{}).get("login")
         }
         events=[]
