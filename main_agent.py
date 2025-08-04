@@ -53,10 +53,19 @@ agent=graph.compile()
 # receive webhook notification
 app=FastAPI()
 @app.post("/notify")
-async def notify(request:Request):
-    payload=await request.json()
-    print("Manager received webhook notification:",payload)
-    return {"status":"notified"}
+async def notify(request: Request):
+    payload = await request.json()
+    event_type = payload.get('event_type', 'unknown')
+    action = payload.get('action')
+    repo = payload.get('repository', {}).get('full_name', 'unknown')
+    sender = payload.get('sender', 'unknown')
+    message = f"🔔 New GitHub event: {event_type}"
+    if action:
+        message += f" (action: {action})"
+    message += f" on repository: {repo} by {sender}"
+    print(message)
+    return {"status": "notified"}
+
 
 
 
