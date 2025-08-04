@@ -7,6 +7,7 @@ from langgraph.graph.message import add_messages
 from github import gt_tools, github_agent
 import uvicorn
 from multiprocessing import Process
+from datetime import datetime
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -50,21 +51,21 @@ agent=graph.compile()
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------
-# receive webhook notification
 app=FastAPI()
 @app.post("/notify")
 async def notify(request: Request):
     payload = await request.json()
     event_type = payload.get('event_type', 'unknown')
-    action = payload.get('action')
     repo = payload.get('repository', {}).get('full_name', 'unknown')
     sender = payload.get('sender', 'unknown')
-    message = f"🔔 New GitHub event: {event_type}"
-    if action:
-        message += f" (action: {action})"
-    message += f" on repository: {repo} by {sender}"
+    title=payload.get("title",'')
+    description=payload.get("description","")
+    timestamp=payload.get("timestamp",'')
+    message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
+    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- Source: {sender}\n"
     print(message)
     return {"status": "notified"}
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------
 def run_agent():
@@ -87,6 +88,8 @@ if __name__=="__main__":
 
     server_process.terminate()
 
-
+# event name
+# title,description, timestamp
+# source
 
 

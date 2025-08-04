@@ -5,8 +5,10 @@ from pathlib import Path
 import subprocess
 from typing import TypedDict,List, Union
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
+from datetime import datetime
+
 load_dotenv()
-# ---------------------------------------------------------------------------------------
+
 mcp=FastMCP(name="github_mcp")
 
 EVENTS_FILE=Path(__file__).parent/"github_events.json"
@@ -21,21 +23,32 @@ def get_recent_actions_events()->str:
 
 
 @mcp.tool
-def get_repository_detail()->str:
-    """Return basic information about the latest repository event."""
+def get_repository_detail() -> str:
+    """Return basic repository info and summary of recent events"""
     if not EVENTS_FILE.exists():
         return "No repository events available."
-    events=json.loads(EVENTS_FILE.read_text())
-    for event in reversed(events):
-        repo=event.get("repository")
-        if repo:
-            name=repo.get("name","Unknown")
-            full_name=repo.get("full_name","")
-            owner=repo.get("owner",{}).get("login","")
-            return f"Repository: {full_name} (owner:{owner})"
-    return "No repository info found in recent events."
+    events = json.loads(EVENTS_FILE.read_text())
+    if not events:
+        return "No events recorded yet."
+    
+    latest_event = events[-1]
+    repo = latest_event.get("repository", {})
+    full_name = repo.get("full_name", "Unknown")
+    owner = repo.get("owner", {}).get("login", "Unknown")
 
+    counts = {}
+    for e in events:
+        etype = e.get('event_type', 'unknown')
+        counts[etype] = counts.get(etype, 0) + 1
 
+    count_summary = ", ".join(f"{etype}: {count}" for etype, count in counts.items())
+
+    return (
+        f"Repository: {full_name} (owner: {owner})\n"
+        f"Total events: {len(events)} ({count_summary})\n"
+        f"Most recent event: {latest_event.get('event_type')} "
+        f"by {latest_event.get('sender')}"
+    )
 
 @mcp.tool
 def get_workflow_status(workflow_name:str)->str:
@@ -61,10 +74,31 @@ def get_workflow_status(workflow_name:str)->str:
     return f"No recent status found for workflow: {workflow_name}"
 
 
+@mcp.tool
+def summarize_latest_event()->str:
+    """Summarize the latest GitHub event (PR,push etc)"""
+    if not EVENTS_FILE.exists():
+        return "No GitHub events found."
+    events=json.loads(EVENTS_FILE.read_text())
+    if not events:
+        return "No events stored."
+    latest=events[-1]
+    event_type=latest.get('event_type','unknown')
+    repo=latest.get("repository",'unknown')
+    sender=latest.get('sender','unknown')
+    title=repo.get("title",'')
+    description=latest.get("description",'')
+    timestamp=latest.get('timestamp',datetime.utcnow().isoformat())
+
+    return (
+        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{timestamp}\nSource: {sender}"
+    )
+
+
 class GitHubAgentState(TypedDict):
     messages:List[Union[HumanMessage,AIMessage,ToolMessage]]
 
-gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn]
+gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn]
 github_tools= {tool.__name__:tool for tool in gt_tools}
 
 def github_agent(state:GitHubAgentState)->GitHubAgentState:
