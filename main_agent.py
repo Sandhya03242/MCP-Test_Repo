@@ -66,9 +66,6 @@ async def notify(request: Request):
     print(message)
     return {"status": "notified"}
 
-
-
-
 # ---------------------------------------------------------------------------------------------------------------------------------
 def run_agent():
     print("🤖 Assistant ready")
