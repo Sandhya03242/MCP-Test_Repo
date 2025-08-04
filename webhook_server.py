@@ -8,13 +8,49 @@ EVENTS_FILE=Path(__file__).parent / "github_events.json"
 async def handle_webhook(request):
     try:
         data=await request.json()
+        event_type=request.headers.get("X-GitHub-Event","unknown")
+        title=''
+        description=''
+        if event_type=='pull_request':
+            pr=data.get("pull_request",{})
+            title=pr.get("title",'')
+            description=pr.get("body",'')
+        elif event_type=='issues':
+            issue=data.get("issue",{})
+            title=issue.get("title",'')
+            description=issue.get("body",'')
+        elif event_type=='push':
+            commits=data.get('commits',[])
+            if commits:
+                title=f"{len(commits)} commits pushed"
+                description="\n".join(commit.get("message",'') for commit in commits)
+        elif event_type=='release':
+            release=data.get("release",{})
+            title=release.get("name",release.get("tag_name",""))
+            description=release.get("body",'')
+        elif event_type=="create":
+            ref_type=data.get("ref_type","")
+            ref=data.get("ref","")
+            title=f"Created {ref_type}: {ref}"
+            description=""
+        elif event_type=="delete":
+            ref_type=data.get("ref_type","")
+            ref=data.get("ref","")
+            title=f"Deleted {ref_type}: {ref}"
+            description=""
+        else:
+            title=data.get("title","")
+            description=data.get("body","")
+
+
+
         event={
             "timestamp":datetime.utcnow().isoformat(),
-            "event_type":request.headers.get("X-GitHub-Event","unknown"),
+            "event_type":event_type,
             "action":data.get("action"),
             "repository": data.get("repository",{}),
-            "title":data.get("title"),
-            "description":data.get("body"),
+            "title":title,
+            "description":description,
             "sender":data.get("sender",{}).get("login")
         }
         events=[]
