@@ -1,1 +1,1 @@
-# MCP Github agent
+MCP Github agent
