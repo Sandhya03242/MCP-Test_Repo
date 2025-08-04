@@ -1,1 +1,2 @@
-Automatic MCP agent
+# MCP GitHub Agent
+
