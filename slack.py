@@ -52,7 +52,7 @@ def slack_agent(state:SlackAgentState)->SlackAgentState:
         fn=slack_tools.get(t['name'])
         if fn:
             try:
-                result=asyncio.run(fn(**t["args"]))
+                result=fn(**t["args"])
             except Exception as e:
                 result=f"Error: {e}"
             results.append(ToolMessage(tool_call_id=t['id'],name=t['name'],content=str(result)))
