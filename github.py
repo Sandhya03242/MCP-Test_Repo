@@ -92,7 +92,7 @@ def summarize_latest_event()->str:
     timestamp=latest.get('timestamp',datetime.utcnow().isoformat())
     try:
         ist_time = datetime.fromisoformat(timestamp)
-        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
+        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%SZ")
     except Exception:
         formatted_time = timestamp
 
