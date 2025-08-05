@@ -8,7 +8,6 @@ from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-
 load_dotenv()
 
 mcp=FastMCP(name="github_mcp")
@@ -90,10 +89,16 @@ def summarize_latest_event()->str:
     sender=latest.get('sender','unknown')
     title=repo.get("title",'')
     description=latest.get("description",'')
-    timestamp=latest.get('timestamp',datetime.now(ZoneInfo("Asia/Kolkata")))
+    timestamp_str=latest.get('timestamp',datetime.utcnow().isoformat())
+    try:
+        utc_time=datetime.fromisoformat(timestamp_str.replace("Z","+00:00"))
+        ist_time=utc_time.astimezone(ZoneInfo("Asia/Kolkata"))
+        formatted_time=ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
+    except Exception as e:
+        formatted_time=timestamp_str
 
     return (
-        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{timestamp}\nSource: {sender}"
+        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
     )
 
 
