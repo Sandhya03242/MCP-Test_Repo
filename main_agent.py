@@ -107,8 +107,5 @@ if __name__=="__main__":
 
     server_process.terminate()
 
-# event name
-# title,description, timestamp
-# source
 
 
