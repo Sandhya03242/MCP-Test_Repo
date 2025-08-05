@@ -70,7 +70,6 @@ async def handle_webhook(request):
         events=events[-100:]
         with open(EVENTS_FILE,"w") as f:
             json.dump(events,f,indent=2)
-        
         try:
             requests.post("http://localhost:8001/notify",json=event)
         except Exception as notify_error:
