@@ -85,9 +85,10 @@ async def notify(request: Request):
     timestamp=payload.get("timestamp",'')
     try:
         ist_time = datetime.fromisoformat(timestamp)
-        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S") + " IST"
     except Exception:
         formatted_time = timestamp
+
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {formatted_time}\n- User: {sender}\n"
     print(message)
