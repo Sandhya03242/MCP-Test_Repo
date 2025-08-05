@@ -89,10 +89,17 @@ def summarize_latest_event()->str:
     sender=latest.get('sender','unknown')
     title=repo.get("title",'')
     description=latest.get("description",'')
-    timestamp=latest.get('timestamp',datetime.now(ZoneInfo("Asia/Kolkata")).isoformat())
+    from dateutil.parser import isoparse
+    timestamp = latest.get('timestamp', datetime.now(ZoneInfo("Asia/Kolkata")).isoformat())
+    parsed_time = isoparse(timestamp)
+    local_time = parsed_time.astimezone(ZoneInfo("Asia/Kolkata"))
     return (
-        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{timestamp}\nSource: {sender}"
-    )
+    f"# Event: {event_type}\n"
+    f"Title: {title}\n"
+    f"Description: {description}\n"
+    f"Timestamp: {local_time.strftime('%Y-%m-%d %H:%M:%S %Z')}\n"
+    f"Source: {sender}"
+)
 
 
 class GitHubAgentState(TypedDict):
