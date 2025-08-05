@@ -9,6 +9,8 @@ from slack import slack_tools,slack_agent
 import uvicorn
 from multiprocessing import Process
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
 
 import warnings
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -81,8 +83,14 @@ async def notify(request: Request):
     title=payload.get("title",'')
     description=payload.get("description","")
     timestamp=payload.get("timestamp",'')
+    try:
+        utc_time=datetime.fromisoformat(timestamp.replace("Z","+00:00"))
+        ist_time=utc_time.astimezone(ZoneInfo("Asia/Kolkata"))
+        formatted_time=ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
+    except Exception as e:
+        formatted_time=timestamp
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
-    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
+    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {formatted_time}\n- User: {sender}\n"
     print(message)
     # state={
     #     "messages":[
