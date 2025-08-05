@@ -10,6 +10,7 @@ import uvicorn
 from multiprocessing import Process
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import pytz
 
 
 import warnings
@@ -66,6 +67,15 @@ graph.add_conditional_edges("MainAgent", router, {
 
 agent=graph.compile()
 
+def convert_utc_to_ist(utc_str:str)->str:
+    try:
+        utc_time=datetime.strptime(utc_str,"%Y-%m-%dT%H:%M:%SZ")
+        utc_time=utc_time.replace(tzinfo=pytz.UTC)
+        ist_time=utc_time.astimezone(pytz.timezone('Asia/Kolkata'))
+        return ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
+    except Exception:
+        return utc_str
+
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 app=FastAPI()
@@ -82,15 +92,14 @@ async def notify(request: Request):
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
-    timestamp=payload.get("timestamp",'')
-    try:
-        ist_time = datetime.fromisoformat(timestamp)
-        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
-    except Exception:
-        formatted_time = timestamp
+    timestamp=payload.get("timestamp")
+    if timestamp:
+        timestamp=convert_utc_to_ist(timestamp)
+    else:
+        timestamp=datetime.now(pytz.timezone("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S IST")
 
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
-    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {formatted_time}\n- User: {sender}\n"
+    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
     # state={
     #     "messages":[
