@@ -15,7 +15,7 @@ def format_github_event(event:dict)->str:
 
 
 @mcp.tool()
-def send_slack_notification(message:str)->str:
+async def send_slack_notification(message:str)->str:
     """Send a formatted notification to the team slack channel."""
     webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
     if not webhook_url:
@@ -45,14 +45,14 @@ class SlackAgentState(TypedDict):
     messages:List[Union[HumanMessage,AIMessage,ToolMessage]]
 
 
-def slack_agent(state:SlackAgentState)->SlackAgentState:
+async def slack_agent(state:SlackAgentState)->SlackAgentState:
     tool_calls=state["messages"][-1].tool_calls
     results=[]
     for t in tool_calls:
         fn=slack_tools.get(t['name'])
         if fn:
             try:
-                result=fn(**t["args"])
+                result= await fn(**t["args"])
             except Exception as e:
                 result=f"Error: {e}"
             results.append(ToolMessage(tool_call_id=t['id'],name=t['name'],content=str(result)))
