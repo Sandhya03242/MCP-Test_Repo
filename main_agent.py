@@ -82,7 +82,7 @@ async def notify(request: Request):
     description=payload.get("description","")
     timestamp=payload.get("timestamp",'')
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
-    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- Source: {sender}\n"
+    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
     state={
         "messages":[
