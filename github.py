@@ -6,6 +6,8 @@ import subprocess
 from typing import TypedDict,List, Union
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from datetime import datetime
+from zoneinfo import ZoneInfo
+
 
 load_dotenv()
 
@@ -88,7 +90,7 @@ def summarize_latest_event()->str:
     sender=latest.get('sender','unknown')
     title=repo.get("title",'')
     description=latest.get("description",'')
-    timestamp=latest.get('timestamp',datetime.utcnow().isoformat())
+    timestamp=latest.get('timestamp',datetime.now(ZoneInfo("Asia/Kolkata")))
 
     return (
         f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{timestamp}\nSource: {sender}"

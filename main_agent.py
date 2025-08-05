@@ -84,13 +84,13 @@ async def notify(request: Request):
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
-    state={
-        "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
-        ]
-    }
-    result=agent.invoke(state)
-    print("Agent: ", result['messages'][-1].content)
+    # state={
+    #     "messages":[
+    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
+    #     ]
+    # }
+    # result=agent.invoke(state)
+    # print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 
 
