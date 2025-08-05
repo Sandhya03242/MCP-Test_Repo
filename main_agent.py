@@ -68,6 +68,10 @@ graph.add_conditional_edges("MainAgent", router, {
 agent=graph.compile()
 
 
+def convert_utc_to_ist(utc_dt):
+        ist=pytz.timezone("Asia/Kolkata")
+        return utc_dt.astimezone(ist)
+
 # ----------------------------------------------------------------------------------------------------------------------------------
 app=FastAPI()
 @app.post("/notify")
@@ -84,9 +88,6 @@ async def notify(request: Request):
     title=payload.get("title",'')
     description=payload.get("description","")
     timestamp=payload.get("timestamp",'')
-    def convert_utc_to_ist(utc_dt):
-        ist=pytz.timezone("Asia/Kolkata")
-        return utc_dt.astimezone(ist)
 
     utc_now = datetime.fromisoformat(timestamp.replace(tzinfo=pytz.utc))
     ist_time=convert_utc_to_ist(utc_now)
