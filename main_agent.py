@@ -70,7 +70,7 @@ agent=graph.compile()
 # convert UTC tiemstamp ti IST
 def convert_utc_to_ist(utc_str:str)->str:
     try:
-        utc_time=datetime.strptime(utc_str,"%Y-%m-%d %H:%M:%S")
+        utc_time=datetime.strptime(utc_str,"%Y-%m-%dT%H:%M:%SZ")
         utc_time=utc_time.replace(tzinfo=pytz.UTC)
         ist_time=utc_time.astimezone(pytz.timezone('Asia/Kolkata'))
         return ist_time.strftime("%Y-%m-%d %H:%M:%S IST")

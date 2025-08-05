@@ -46,6 +46,7 @@ async def handle_webhook(request):
 
 
         ist_now=datetime.now(pytz.timezone("Asia/Kolkata")).isoformat()
+        ist_now=ist_now.strftime("%Y-%m-%d %H:%M:%S IST")
         event={
             "timestamp":ist_now,
             "event_type":event_type,
