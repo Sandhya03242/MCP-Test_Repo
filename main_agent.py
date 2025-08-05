@@ -85,7 +85,7 @@ async def notify(request: Request):
     timestamp=payload.get("timestamp",'')
     try:
         ist_time = datetime.fromisoformat(timestamp)
-        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S") + " IST"
+        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
     except Exception:
         formatted_time = timestamp
 
