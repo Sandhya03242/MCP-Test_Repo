@@ -71,6 +71,11 @@ app=FastAPI()
 async def notify(request: Request):
     payload = await request.json()
     event_type = payload.get('event_type', 'unknown')
+    if event_type=="pull_request":
+        action=payload.get("action")
+        if action=='synchronize':
+            return {"status":"ignored synchronize event"}
+
     repo = payload.get('repository', {}).get('full_name', 'unknown')
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
