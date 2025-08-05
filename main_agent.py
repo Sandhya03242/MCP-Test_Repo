@@ -10,7 +10,6 @@ import uvicorn
 from multiprocessing import Process
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import pytz
 
 
 import warnings
@@ -67,35 +66,6 @@ graph.add_conditional_edges("MainAgent", router, {
 
 agent=graph.compile()
 
-# convert UTC tiemstamp ti IST
-# def convert_utc_to_ist(utc_str: str) -> str:
-#     try:
-#         utc_time=datetime.strptime(utc_str, "%Y-%m-%dT%H:%M%SZ")
-#         utc_time=utc_time.replace(tzinfo=pytz.UTC)
-#         ist_time=utc_time.astimezone(pytz.timezone("Asia/Kolkata"))
-#         return ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
-#     except Exception:
-#         return utc_str
-
-def convert_utc_to_ist(utc_str: str) -> str:
-    try:
-        # Handle case where it's a simple UTC timestamp string ending in 'Z'
-        if utc_str.endswith("Z"):
-            utc_time = datetime.strptime(utc_str, "%Y-%m-%dT%H:%M:%SZ")
-            utc_time = utc_time.replace(tzinfo=pytz.UTC)
-        else:
-            # Try parsing full ISO string with timezone if possible
-            utc_time = datetime.fromisoformat(utc_str)
-            if utc_time.tzinfo is None:
-                utc_time = utc_time.replace(tzinfo=pytz.UTC)
-
-        ist_time = utc_time.astimezone(pytz.timezone("Asia/Kolkata"))
-        return ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
-    except Exception as e:
-        print(f"[convert_utc_to_ist] Error: {e}")
-        return utc_str  # fallback to original if parsing fails
-
-
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 app=FastAPI()
@@ -112,15 +82,15 @@ async def notify(request: Request):
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
-
-    timestamp=payload.get('timestamp')
-    if timestamp:
-        timestamp=convert_utc_to_ist(timestamp)
-    else:
-        timestamp=datetime.now(pytz.timezone("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S IST")
+    timestamp=payload.get("timestamp",'')
+    try:
+        ist_time = datetime.fromisoformat(timestamp)
+        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
+    except Exception:
+        formatted_time = timestamp
 
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
-    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
+    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {formatted_time}\n- User: {sender}\n"
     print(message)
     # state={
     #     "messages":[
