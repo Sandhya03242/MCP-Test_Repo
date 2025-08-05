@@ -10,6 +10,10 @@ load_dotenv()
 
 mcp=FastMCP(name="slack_mcp")
 
+def format_github_event(event:dict)->str:
+    return 
+
+
 @mcp.tool()
 async def send_slack_notification(message:str)->str:
     """Send a formatted notification to the team slack channel."""
