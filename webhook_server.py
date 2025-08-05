@@ -4,6 +4,7 @@ from pathlib import Path
 from aiohttp import web
 import requests
 from zoneinfo import ZoneInfo
+import pytz
 
 EVENTS_FILE=Path(__file__).parent / "github_events.json"
 async def handle_webhook(request):
@@ -42,10 +43,11 @@ async def handle_webhook(request):
         else:
             title=data.get("title","")
             description=data.get("body","")
-        
 
+
+        ist_now=datetime.now(pytz.timezone("Asia/Kolkata")).isoformat()
         event={
-            "timestamp":datetime.now(ZoneInfo("Asia/Kolkata")).isoformat(),
+            "timestamp":ist_now,
             "event_type":event_type,
             "action":data.get("action"),
             "repository": data.get("repository",{}),

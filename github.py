@@ -7,6 +7,7 @@ from typing import TypedDict,List, Union
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from datetime import datetime
 from zoneinfo import ZoneInfo
+import pytz
 
 load_dotenv()
 
@@ -89,13 +90,18 @@ def summarize_latest_event()->str:
     sender=latest.get('sender','unknown')
     title=repo.get("title",'')
     description=latest.get("description",'')
-    dt_ts=datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
-    timestamp=latest.get('timestamp') or dt_ts
-    try:
-        ist_time = datetime.fromisoformat(timestamp)
-        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
-    except Exception:
-        formatted_time = timestamp
+    timestamp=latest.get('timestamp')
+    if timestamp:
+        try:
+            dt=datetime.fromisoformat(timestamp)
+            if dt.tzinfo is None:
+                dt=dt.replace(tzinfo=pytz.UTC)
+            dt_ist=dt.astimezone(pytz.timezone("Asia/Kolkata"))
+            formatted_time=dt_ist.strftime("%Y-%m-%d %H:%M:%S IST")
+        except Exception as e:
+            formatted_time=timestamp
+    else:
+        formatted_time=""
 
 
     return (
