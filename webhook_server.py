@@ -45,7 +45,7 @@ async def handle_webhook(request):
         
 
         event={
-            "timestamp":datetime.now().isoformat(),
+            "timestamp":datetime.now(ZoneInfo("Asia/Kolkata")).isoformat(),
             "event_type":event_type,
             "action":data.get("action"),
             "repository": data.get("repository",{}),
