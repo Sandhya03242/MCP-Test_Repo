@@ -82,12 +82,13 @@ async def notify(request: Request):
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
-    timestamp=payload.get("timestamp",'')
-    # try:
-    #     ist_time = datetime.fromisoformat(timestamp)
-    #     formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
-    # except Exception:
-    #     formatted_time = timestamp
+    dt_ts=datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
+    timestamp=payload.get('timestamp') or dt_ts
+    try:
+        ist_time = datetime.fromisoformat(timestamp)
+        timestamp = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
+    except Exception:
+        timestamp = timestamp
 
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"

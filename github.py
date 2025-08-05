@@ -89,7 +89,8 @@ def summarize_latest_event()->str:
     sender=latest.get('sender','unknown')
     title=repo.get("title",'')
     description=latest.get("description",'')
-    timestamp=latest.get('timestamp',datetime.now(ZoneInfo("Asia/Kolkata")).isoformat())
+    dt_ts=datetime.now(ZoneInfo("Asia/Kolkata")).isoformat()
+    timestamp=latest.get('timestamp') or dt_ts
     try:
         ist_time = datetime.fromisoformat(timestamp)
         formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %z")
