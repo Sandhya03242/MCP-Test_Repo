@@ -4,11 +4,6 @@ from pathlib import Path
 from aiohttp import web
 import requests
 from zoneinfo import ZoneInfo
-import pytz
-
-def convert_utc_to_ist(utc_dt):
-            ist=pytz.timezone("Asia/Kolkata")
-            return utc_dt.astimezone(ist)
 
 EVENTS_FILE=Path(__file__).parent / "github_events.json"
 async def handle_webhook(request):
@@ -48,13 +43,10 @@ async def handle_webhook(request):
             title=data.get("title","")
             description=data.get("body","")
         
-
-        utc_now = datetime.utcnow().replace(tzinfo=pytz.utc)
-        ist_time=convert_utc_to_ist(utc_now)
-        formatted_time=ist_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+        
 
         event={
-            "timestamp":formatted_time,
+            "timestamp":datetime.now(ZoneInfo("Asia/Kolkata")),
             "event_type":event_type,
             "action":data.get("action"),
             "repository": data.get("repository",{}),
@@ -70,6 +62,7 @@ async def handle_webhook(request):
         events=events[-100:]
         with open(EVENTS_FILE,"w") as f:
             json.dump(events,f,indent=2)
+        
         try:
             requests.post("http://localhost:8001/notify",json=event)
         except Exception as notify_error:
