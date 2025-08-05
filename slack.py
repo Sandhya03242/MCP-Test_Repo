@@ -15,7 +15,7 @@ def format_github_event(event:dict)->str:
 
 
 @mcp.tool()
-async def send_slack_notification(message:str)->str:
+def send_slack_notification(message:str)->str:
     """Send a formatted notification to the team slack channel."""
     webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
     if not webhook_url:
