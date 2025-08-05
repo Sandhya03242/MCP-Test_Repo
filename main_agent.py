@@ -68,14 +68,33 @@ graph.add_conditional_edges("MainAgent", router, {
 agent=graph.compile()
 
 # convert UTC tiemstamp ti IST
+# def convert_utc_to_ist(utc_str: str) -> str:
+#     try:
+#         utc_time=datetime.strptime(utc_str, "%Y-%m-%dT%H:%M%SZ")
+#         utc_time=utc_time.replace(tzinfo=pytz.UTC)
+#         ist_time=utc_time.astimezone(pytz.timezone("Asia/Kolkata"))
+#         return ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
+#     except Exception:
+#         return utc_str
+
 def convert_utc_to_ist(utc_str: str) -> str:
     try:
-        utc_time=datetime.strptime(utc_str, "%Y-%m-%dT%H:%M%SZ")
-        utc_time=utc_time.replace(tzinfo=pytz.UTC)
-        ist_time=utc_time.astimezone(pytz.timezone("Asia/Kolkata"))
+        # Handle case where it's a simple UTC timestamp string ending in 'Z'
+        if utc_str.endswith("Z"):
+            utc_time = datetime.strptime(utc_str, "%Y-%m-%dT%H:%M:%SZ")
+            utc_time = utc_time.replace(tzinfo=pytz.UTC)
+        else:
+            # Try parsing full ISO string with timezone if possible
+            utc_time = datetime.fromisoformat(utc_str)
+            if utc_time.tzinfo is None:
+                utc_time = utc_time.replace(tzinfo=pytz.UTC)
+
+        ist_time = utc_time.astimezone(pytz.timezone("Asia/Kolkata"))
         return ist_time.strftime("%Y-%m-%d %H:%M:%S IST")
-    except Exception:
-        return utc_str
+    except Exception as e:
+        print(f"[convert_utc_to_ist] Error: {e}")
+        return utc_str  # fallback to original if parsing fails
+
 
 
 # ----------------------------------------------------------------------------------------------------------------------------------
