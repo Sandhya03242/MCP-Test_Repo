@@ -89,16 +89,9 @@ def summarize_latest_event()->str:
     sender=latest.get('sender','unknown')
     title=repo.get("title",'')
     description=latest.get("description",'')
-    timestamp=latest.get('timestamp',datetime.utcnow().isoformat())
-    try:
-        ist_time = datetime.fromisoformat(timestamp)
-        formatted_time = ist_time.strftime("%Y-%m-%d %H:%M:%S %Z")
-    except Exception:
-        formatted_time = timestamp
-
-
+    timestamp=latest.get('timestamp',datetime.now(ZoneInfo("Asia/Kolkata")).isoformat())
     return (
-        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
+        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{timestamp}\nSource: {sender}"
     )
 
 
