@@ -5,6 +5,7 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 from langgraph.graph.message import add_messages
 from github import gt_tools, github_agent
+from slack import slack_tools,slack_agent
 import uvicorn
 from multiprocessing import Process
 from datetime import datetime
@@ -17,7 +18,7 @@ warnings.filterwarnings("ignore", category=DeprecationWarning)
 class AgentState(TypedDict):
     messages:Annotated[Sequence[BaseMessage],add_messages]
 
-tools=gt_tools
+tools=gt_tools + list(slack_tools.values())
 
 llm=ChatOpenAI(model="gpt-4.1-nano",temperature=0).bind_tools(tools=tools,tool_choice='auto')
 
@@ -26,26 +27,44 @@ def should_continue(state:AgentState):
     result=state['messages'][-1]
     return hasattr(result,'tool_call') and len(result.tool_calls)>0
 
-sys_prompt="""You are a Github assistant. Use the tools to answer queries about repository events, workflow status or file changes."""
+sys_prompt="""You are an assistant that helps with GitHub and slack workflows. Use GitHub tools for repo queries and slack tools for team notifications."""
 
 def call_llm(state:AgentState)->AgentState:
     messages=[SystemMessage(content=sys_prompt)]+list(state['messages'])
     response=llm.invoke(messages)
     return {"messages":state['messages']+[response]}
 
-def router(state:AgentState):
-    return "GitHubAgent" if state['messages'][-1].tool_calls else END
+def router(state: AgentState):
+    tool_calls = getattr(state['messages'][-1], 'tool_calls', [])
+    tool_names = [t['name'] for t in tool_calls]
+
+    gt_tool_names = [fn.__name__ for fn in gt_tools]
+    slack_tool_names = list(slack_tools.keys())
+
+    if any(t in gt_tool_names for t in tool_names):
+        return "GitHub"
+    elif any(t in slack_tool_names for t in tool_names):
+        return "Slack"
+    else:
+        return END
+
+
+
 
 
 graph=StateGraph(state_schema=AgentState)
 graph.add_node("MainAgent",call_llm)
-graph.add_node("GitHub",github_agent)
+graph.add_node("GitHub", github_agent)
+graph.add_node("Slack", slack_agent)
 graph.set_entry_point("MainAgent")
 graph.add_edge("GitHub","MainAgent")
-graph.add_conditional_edges("MainAgent",router,{
-    "GitHubAgent":"GitHub",
-    END:END
+graph.add_edge("Slack","MainAgent")
+graph.add_conditional_edges("MainAgent", router, {
+    "GitHub": "GitHub",
+    "Slack": "Slack",
+    END: END
 })
+
 
 agent=graph.compile()
 
