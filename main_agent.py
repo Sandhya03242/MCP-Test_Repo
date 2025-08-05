@@ -87,12 +87,11 @@ async def notify(request: Request):
     def convert_utc_to_ist(utc_dt):
         ist=pytz.timezone("Asia/Kolkata")
         return utc_dt.astimezone(ist)
-    try:
-        utc_now = datetime.fromisoformat(timestamp.replace(tzinfo=pytz.utc))
-        ist_time=convert_utc_to_ist(utc_now)
-        formatted_time=ist_time.strftime("%Y-%m-%d %H:%M:%S %Z")
-    except Exception as e:
-        formatted_time=timestamp
+
+    utc_now = datetime.fromisoformat(timestamp.replace(tzinfo=pytz.utc))
+    ist_time=convert_utc_to_ist(utc_now)
+    formatted_time=ist_time.strftime("%Y-%m-%d %H:%M:%S %Z")
+    
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {formatted_time}\n- User: {sender}\n"
     print(message)
