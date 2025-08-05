@@ -77,7 +77,6 @@ def convert_utc_to_ist(utc_str:str)->str:
     except Exception as e:
         return utc_str
 
-
 # ----------------------------------------------------------------------------------------------------------------------------------
 app=FastAPI()
 @app.post("/notify")
