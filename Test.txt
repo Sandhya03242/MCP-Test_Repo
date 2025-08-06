@@ -1,1 +1,1 @@
-Github and Slack Agent with human interaction
+Github and Slack Agent
