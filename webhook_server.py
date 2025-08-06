@@ -20,7 +20,7 @@ async def handle_webhook(request):
             title=pr.get("title",'')
             description=pr.get("body",'')
             pr_number=pr.get("number")
-            repo_full_name=data.get("repository",{}).get("full_name")
+            # repo_full_name=data.get("repository",{}).get("full_name")
         elif event_type=='issues':
             issue=data.get("issue",{})
             title=issue.get("title",'')

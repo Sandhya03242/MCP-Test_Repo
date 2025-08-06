@@ -113,20 +113,23 @@ async def notify(request: Request):
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
-    state={
-        "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
-                         additional_kwargs={
-                             'tool_calls':[{
-                                 "id":"slack_call_1",
-                                 "name":"send_slack_notification",
-                                 "args":tool_args
-                             }]
-                         })
-        ]
-    }
-    result=agent.invoke(state)
-    print("Agent: ", result['messages'][-1].content)
+    else:
+        tool_args.pop("repo", None)
+        tool_args.pop("pr_number", None)
+    # state={
+    #     "messages":[
+    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
+    #                      additional_kwargs={
+    #                          'tool_calls':[{
+    #                              "id":"slack_call_1",
+    #                              "name":"send_slack_notification",
+    #                              "args":tool_args
+    #                          }]
+    #                      })
+    #     ]
+    # }
+    # result=agent.invoke(state)
+    # print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 # -------------------------------------------------------------------------------------------------------------------------------
 
