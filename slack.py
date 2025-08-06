@@ -27,26 +27,29 @@ def send_slack_notification(message:str,pr_number:int=None,repo:str=None,event_t
             "text":{"type":"mrkdwn","text":message}
         }
     ]
-    if event_type.strip().lower()=='pull_request' and pr_number and repo:
-        blocks.append({
-            "type":"actions",
-            "elements":[
-                {
-                    "type":"button",
-                    "text":{"type":"plain_text","text":"✅ Merge"},
-                    "style":"primary",
-                    "value":json.dumps({"action":"merge","repo":repo,"pr_number":pr_number}),
-                    "action_id":"merge_pr"
-                },
-                {
-                    "type":"button",
-                    "text":{"type":"plain_text","text":"❌ Cancel"},
-                    "style":"danger",
-                    "value":json.dumps({"action":"cancel"}),
-                    "action_id":"cancel_pr"
-                }
-            ]
-        })
+
+
+    if event_type and event_type.lower() == 'pull_request':
+        if pr_number and repo:
+            blocks.append({
+                "type":"actions",
+                "elements":[
+                    {
+                        "type":"button",
+                        "text":{"type":"plain_text","text":"✅ Merge"},
+                        "style":"primary",
+                        "value":json.dumps({"action":"merge","repo":repo,"pr_number":pr_number}),
+                        "action_id":"merge_pr"
+                    },
+                    {
+                        "type":"button",
+                        "text":{"type":"plain_text","text":"❌ Cancel"},
+                        "style":"danger",
+                        "value":json.dumps({"action":"cancel"}),
+                        "action_id":"cancel_pr"
+                    }
+                ]
+            })
 
     payload={
             "blocks":blocks,
