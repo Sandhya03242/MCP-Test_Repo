@@ -94,6 +94,7 @@ async def notify(request: Request):
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
+    pr_number=payload.get("pr_number") if event_type =="pull_request" else None
     timestamp=payload.get("timestamp")
     if timestamp:
         timestamp=convert_utc_to_ist(timestamp)

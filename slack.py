@@ -16,7 +16,7 @@ SLACK_BOT_TOKEN=os.environ.get("SLACK_API_KEY")
 
 
 @mcp.tool()
-def send_slack_notification(message:str,pr_number:int=None,repo:str=None)->str:
+def send_slack_notification(message:str,pr_number:int=None,repo:str=None,event_type:str=None)->str:
     """Send a formatted notification to the team slack channel."""
     webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
     if not webhook_url:
@@ -25,8 +25,10 @@ def send_slack_notification(message:str,pr_number:int=None,repo:str=None)->str:
         {
             "type":"section",
             "text":{"type":"mrkdwn","text":message}
-        },
-        {
+        }
+    ]
+    if event_type=='pull_request' and pr_number and repo:
+        blocks.append({
             "type":"actions",
             "elements":[
                 {
@@ -38,14 +40,13 @@ def send_slack_notification(message:str,pr_number:int=None,repo:str=None)->str:
                 },
                 {
                     "type":"button",
-                    "text":{"type":"plain_text","text":"❌ Cancle"},
+                    "text":{"type":"plain_text","text":"❌ Cancel"},
                     "style":"danger",
                     "value":json.dumps({"action":"cancel"}),
                     "action_id":"cancel_pr"
                 }
             ]
-        }
-    ]
+        })
 
     payload={
             "blocks":blocks,
