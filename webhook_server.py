@@ -11,12 +11,16 @@ async def handle_webhook(request):
     try:
         data=await request.json()
         event_type=request.headers.get("X-GitHub-Event","unknown")
+        pr_number=None
+        repo_full_name=None
         title=''
         description=''
         if event_type=='pull_request':
             pr=data.get("pull_request",{})
             title=pr.get("title",'')
             description=pr.get("body",'')
+            pr_number=pr.get("number")
+            repo_full_name=data.get("repository",{}).get("full_name")
         elif event_type=='issues':
             issue=data.get("issue",{})
             title=issue.get("title",'')
@@ -51,6 +55,7 @@ async def handle_webhook(request):
             "event_type":event_type,
             "action":data.get("action"),
             "repository": data.get("repository",{}),
+            "pr_number":pr_number,
             "title":title,
             "description":description,
             "sender":data.get("sender",{}).get("login")

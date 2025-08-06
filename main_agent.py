@@ -1,5 +1,6 @@
 from langchain_openai import ChatOpenAI
-from fastapi import FastAPI,Request
+from fastapi import FastAPI,Request,Form
+from fastapi.responses import JSONResponse, PlainTextResponse
 from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
@@ -9,8 +10,9 @@ from slack import slack_tools,slack_agent
 import uvicorn
 from multiprocessing import Process
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from github import merge_pull_request
 import pytz
+import json
 
 
 import warnings
@@ -101,15 +103,39 @@ async def notify(request: Request):
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
-    # state={
-    #     "messages":[
-    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
-    #     ]
-    # }
-    # result=agent.invoke(state)
-    # print("Agent: ", result['messages'][-1].content)
+    state={
+        "messages":[
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
+        ]
+    }
+    result=agent.invoke(state)
+    print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
+# -------------------------------------------------------------------------------------------------------------------------------
 
+@app.post("/slack/interact")
+async def slack_interact(request:Request):
+    form_data=await request.form()
+    payload=json.loads(form_data['payload'])
+    
+    action=payload['actions'][0]
+    data=json.loads(action['value'])
+    if data.get("action")=="merge":
+        repo=data['repo']
+        pr_number=data['pr_number']
+        merge_result=merge_pull_request(repo,pr_number)
+        message=f"✅ Merge PR #{pr_number} in {repo} merged successfully."
+    elif data.get("action")=="cancel":
+        message=f"❌ Merge cancelled"
+
+    state={
+        "messages":[
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
+        ]
+    }
+    result=agent.invoke(state)
+    print("Agent: ", result['messages'][-1].content)
+    return {"status": "notified and send to slack"}
 
 # ---------------------------------------------------------------------------------------------------------------------------------
 def run_agent():

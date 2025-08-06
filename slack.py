@@ -2,26 +2,57 @@ from dotenv import load_dotenv
 import os
 import requests
 from fastmcp import FastMCP
+from fastapi import FastAPI
 from typing import TypedDict,List, Union
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 import asyncio
+import json
 from dotenv import load_dotenv
 load_dotenv()
 
 mcp=FastMCP(name="slack_mcp")
+app=FastAPI()
+SLACK_BOT_TOKEN=os.environ.get("SLACK_API_KEY")
 
 
 @mcp.tool()
-def send_slack_notification(message:str)->str:
+def send_slack_notification(message:str,pr_number:int=None,repo:str=None)->str:
     """Send a formatted notification to the team slack channel."""
     webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
     if not webhook_url:
         return "Error: SLACK_WEBHOOK_URL environment  variable not set"
-    try:
-        payload={
+    blocks=[
+        {
+            "type":"section",
+            "text":{"type":"mrkdwn","text":message}
+        },
+        {
+            "type":"actions",
+            "elements":[
+                {
+                    "type":"button",
+                    "text":{"type":"plain_text","text":"✅ Merge"},
+                    "style":"primary",
+                    "value":json.dumps({"action":"merge","repo":repo,"pr_number":pr_number}),
+                    "action_id":"merge_pr"
+                },
+                {
+                    "type":"button",
+                    "text":{"type":"plain_text","text":"❌ Cancle"},
+                    "style":"danger",
+                    "value":json.dumps({"action":"cancel"}),
+                    "action_id":"cancel_pr"
+                }
+            ]
+        }
+    ]
+
+    payload={
+            "blocks":blocks,
             "text":message,
             "mrkdwn":True
         }
+    try:
         response=requests.post(webhook_url,json=payload,timeout=10)
         if response.status_code==200:
             return "✅ Message sent successfully to slack."
@@ -33,6 +64,9 @@ def send_slack_notification(message:str)->str:
         return "❌ Connection error. Check your  internet connection and webhook URL."
     except Exception as e:
         return f"❌ Error sending message: {str(e)}"
+
+
+
     
 slack_tools=[send_slack_notification.fn]
 slack_tools= {tool.__name__:tool for tool in slack_tools}

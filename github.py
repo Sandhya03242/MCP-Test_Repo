@@ -108,6 +108,22 @@ def summarize_latest_event()->str:
         f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
     )
 
+def merge_pull_request(repo:str,pr_number:int)->str:
+    """Merge a PR"""
+    try:
+        result=subprocess.run(
+            ['gh','pr','merge',str(pr_number),"--repo",repo,'--merge'],
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return f"✅ Merge PR #{pr_number} merged successfully.\n{result.stdout}"
+    except subprocess.CalledProcessError as e:
+        return f"❌ Failed to merge PR:\n{e.stderr}"
+
+
+
+
 
 class GitHubAgentState(TypedDict):
     messages:List[Union[HumanMessage,AIMessage,ToolMessage]]
