@@ -91,7 +91,7 @@ async def notify(request: Request):
         if action == "synchronize":
             return {"status": "ignored synchronize event"}
         
-        pr_number = payload.get("number")
+        pr_number = payload.get("pull_request", {}).get("number") or payload.get("number")
 
 
     repo = payload.get('repository', {}).get('full_name', 'unknown')
@@ -118,23 +118,23 @@ async def notify(request: Request):
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
-    # else:
-    #     tool_args.pop("repo", None)
-    #     tool_args.pop("pr_number", None)
-    # state={
-    #     "messages":[
-    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
-    #                      additional_kwargs={
-    #                          'tool_calls':[{
-    #                              "id":"slack_call_1",
-    #                              "name":"send_slack_notification",
-    #                              "args":tool_args
-    #                          }]
-    #                      })
-    #     ]
-    # }
-    # result=agent.invoke(state)
-    # print("Agent: ", result['messages'][-1].content)
+    else:
+        tool_args.pop("repo", None)
+        tool_args.pop("pr_number", None)
+    state={
+        "messages":[
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
+                         additional_kwargs={
+                             'tool_calls':[{
+                                 "id":"slack_call_1",
+                                 "name":"send_slack_notification",
+                                 "args":tool_args
+                             }]
+                         })
+        ]
+    }
+    result=agent.invoke(state)
+    print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 # -------------------------------------------------------------------------------------------------------------------------------
 
@@ -147,19 +147,20 @@ async def slack_interact(request:Request):
     data=json.loads(action['value'])
     if data.get("action")=="merge":
         repo=data['repo']
-        pr_number=data['pr_number']
+        pr_number=data.get("number")
+
         merge_result=merge_pull_request(repo,pr_number)
         message=f"✅ Merge PR #{pr_number} in {repo} merged successfully."
     elif data.get("action")=="cancel":
         message=f"❌ Merge cancelled"
 
-    # state={
-    #     "messages":[
-    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
-    #     ]
-    # }
-    # result=agent.invoke(state)
-    # print("Agent: ", result['messages'][-1].content)
+    state={
+        "messages":[
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
+        ]
+    }
+    result=agent.invoke(state)
+    print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 
 # ---------------------------------------------------------------------------------------------------------------------------------
