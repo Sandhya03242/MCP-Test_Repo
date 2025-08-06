@@ -85,16 +85,20 @@ app=FastAPI()
 async def notify(request: Request):
     payload = await request.json()
     event_type = payload.get('event_type', 'unknown')
-    if event_type=="pull_request":
-        action=payload.get("action")
-        if action=='synchronize':
-            return {"status":"ignored synchronize event"}
+    pr_number=None
+    if event_type == "pull_request":
+        action = payload.get("action")
+        if action == "synchronize":
+            return {"status": "ignored synchronize event"}
+        
+        pr_number = payload.get("number")
+
 
     repo = payload.get('repository', {}).get('full_name', 'unknown')
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
-    pr_number=payload.get("pr_number") if event_type =="pull_request" else None
+
 
     timestamp=payload.get("timestamp")
     if timestamp:
@@ -105,6 +109,7 @@ async def notify(request: Request):
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
+    print("📥 In /notify: event_type=", event_type, "repo=", repo, "pr_number=", pr_number)
 
     tool_args={
         "message":message,
@@ -113,9 +118,9 @@ async def notify(request: Request):
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
-    else:
-        tool_args.pop("repo", None)
-        tool_args.pop("pr_number", None)
+    # else:
+    #     tool_args.pop("repo", None)
+    #     tool_args.pop("pr_number", None)
     # state={
     #     "messages":[
     #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
@@ -148,13 +153,13 @@ async def slack_interact(request:Request):
     elif data.get("action")=="cancel":
         message=f"❌ Merge cancelled"
 
-    state={
-        "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
-        ]
-    }
-    result=agent.invoke(state)
-    print("Agent: ", result['messages'][-1].content)
+    # state={
+    #     "messages":[
+    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
+    #     ]
+    # }
+    # result=agent.invoke(state)
+    # print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 
 # ---------------------------------------------------------------------------------------------------------------------------------

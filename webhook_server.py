@@ -16,11 +16,12 @@ async def handle_webhook(request):
         title=''
         description=''
         if event_type=='pull_request':
-            pr=data.get("pull_request",{})
+            pr=data.get("pull_request",{}).get("number")
+            print("PR payload",pr)
             title=pr.get("title",'')
             description=pr.get("body",'')
-            pr_number=pr.get("number")
-            # repo_full_name=data.get("repository",{}).get("full_name")
+            pr_number=pr.get("number") or data.get("number")
+            repo_full_name=data.get("repository",{}).get("full_name")
         elif event_type=='issues':
             issue=data.get("issue",{})
             title=issue.get("title",'')
@@ -54,7 +55,7 @@ async def handle_webhook(request):
             "timestamp":ist_now,
             "event_type":event_type,
             "action":data.get("action"),
-            "repository": data.get("repository",{}),
+            "repository": {"full_name": repo_full_name},
             "pr_number":pr_number,
             "title":title,
             "description":description,

@@ -18,9 +18,9 @@ SLACK_BOT_TOKEN=os.environ.get("SLACK_API_KEY")
 @mcp.tool()
 def send_slack_notification(message:str,pr_number:int=None,repo:str=None,event_type:str=None)->str:
     """Send a formatted notification to the team slack channel."""
-    webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
-    if not webhook_url:
-        return "Error: SLACK_WEBHOOK_URL environment  variable not set"
+    # webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
+    if not SLACK_BOT_TOKEN:
+        return "Error: SLACK_API_KEY environment  variable not set"
     blocks=[
         {
             "type":"section",
@@ -52,12 +52,13 @@ def send_slack_notification(message:str,pr_number:int=None,repo:str=None,event_t
 
 
     payload={
-            "blocks":blocks,
-            "text":message,
-            "mrkdwn":True
+        "channel":"#general",
+        "blocks":blocks,
+        "text":message,
+        "mrkdwn":True
         }
     try:
-        response=requests.post(webhook_url,json=payload,timeout=10)
+        response=requests.post("https://slack.com/api/chat.postMessage",json=payload,timeout=10)
         if response.status_code==200:
             return "✅ Message sent successfully to slack."
         else:
