@@ -95,6 +95,7 @@ async def notify(request: Request):
     title=payload.get("title",'')
     description=payload.get("description","")
     pr_number=payload.get("pr_number") if event_type =="pull_request" else None
+
     timestamp=payload.get("timestamp")
     if timestamp:
         timestamp=convert_utc_to_ist(timestamp)
@@ -104,6 +105,14 @@ async def notify(request: Request):
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
+
+    tool_args={
+        "message":message,
+        "event_type":event_type
+    }
+    if event_type=="pull_request" and pr_number and repo:
+        tool_args['repo']=repo
+        tool_args['pr_number']=pr_number
     state={
         "messages":[
             HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
@@ -111,12 +120,7 @@ async def notify(request: Request):
                              'tool_calls':[{
                                  "id":"slack_call_1",
                                  "name":"send_slack_notification",
-                                 "args":{
-                                     "message":message,
-                                     "event_type":event_type,
-                                     "repo":repo,
-                                     "pr_number":pr_number
-                                 }
+                                 "args":tool_args
                              }]
                          })
         ]
