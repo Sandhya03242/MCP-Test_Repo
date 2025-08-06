@@ -106,7 +106,19 @@ async def notify(request: Request):
     print(message)
     state={
         "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
+                         additional_kwargs={
+                             'tool_calls':[{
+                                 "id":"slack_call_1",
+                                 "name":"send_slack_notification",
+                                 "args":{
+                                     "message":message,
+                                     "event_type":event_type,
+                                     "repo":repo,
+                                     "pr_number":pr_number
+                                 }
+                             }]
+                         })
         ]
     }
     result=agent.invoke(state)

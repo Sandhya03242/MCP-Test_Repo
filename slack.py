@@ -27,7 +27,7 @@ def send_slack_notification(message:str,pr_number:int=None,repo:str=None,event_t
             "text":{"type":"mrkdwn","text":message}
         }
     ]
-    if event_type=='pull_request' and pr_number and repo:
+    if event_type.strip().lower()=='pull_request' and pr_number and repo:
         blocks.append({
             "type":"actions",
             "elements":[
