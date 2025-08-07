@@ -23,8 +23,8 @@ def send_slack_notification(message:str,event_type:str="unknown",repo:str=None,p
         return "Error: SLACK_WEBHOOK_URL environment  variable not set"
     blocks=[
         {"type":"section","text":{"type":"mrkdwn","text":message}}]
-    # repo="Sandhya03242/MCP-Test_Repo"
-    # pr_number=123
+    print(f"DEBUG send_slack_notification called with repo={repo}, pr_number={pr_number}")
+    value_payload = json.dumps({"repo": repo, "pr_number": pr_number})
     if event_type=='pull_request':
         blocks.append({
             "type":"actions",
@@ -33,14 +33,14 @@ def send_slack_notification(message:str,event_type:str="unknown",repo:str=None,p
                     "type":"button",
                     "text":{"type":"plain_text","text":"✅ Merge"},
                     "style":"primary",
-                    "value":json.dumps({"action": "merge", "repo": repo, "pr_number": pr_number}),
+                    "value":value_payload,
                     "action_id":"merge_action"
                 },
                 {
                     "type":"button",
                     "text":{"type":"plain_text","text":"❌ Cancel"},
                     "style":"danger",
-                    "value":json.dumps({"action": "cancel", "repo": repo, "pr_number": pr_number}),
+                    "value":value_payload,
                     "action_id":"cancel_action"
                 }
             ]
@@ -49,7 +49,8 @@ def send_slack_notification(message:str,event_type:str="unknown",repo:str=None,p
     payload={
             "blocks":blocks,
             "text":message,
-            "mrkdwn":True
+            "mrkdwn":True,
+            "private_metadata":json.dumps({"repo":repo,"pr_number":pr_number})
         }
     try:
         response=requests.post(webhook_url,json=payload,timeout=10)

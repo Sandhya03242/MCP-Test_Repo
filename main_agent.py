@@ -89,10 +89,19 @@ async def notify(request: Request):
         action=payload.get("action")
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
+    repo_info=payload.get("repository",{})
+    repo=repo_info.get("full_name","unknown") if isinstance(repo_info,dict) else str(repo_info)
 
-    repo = payload.get("repository", "unknown")
+    pr_number = (payload.get("number")or payload.get("pull_request", {}).get("number") or None)
 
-    pr_number=payload.get("number")
+    if pr_number is None:
+        pr_number_safe="unknown"
+    else:
+        pr_number_safe=pr_number
+    if repo is None:
+        repo_safe="unknown"
+    else:
+        repo_safe=repo
 
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
@@ -102,14 +111,17 @@ async def notify(request: Request):
         timestamp=convert_utc_to_ist(timestamp)
     else:
         timestamp=datetime.now(pytz.timezone("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S IST")
-
+    print("payload: ",json.dumps(payload, indent=2))
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
     tool_args={
         "message":message,
-        "event_type":event_type
+        "event_type":event_type,
+        "repo":repo_safe,
+        "pr_number":pr_number_safe
     }
+    print("DEBUG: repo =", repo, "pr_number =", pr_number)
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
@@ -142,21 +154,23 @@ async def handler_slack_actions(request: Request):
         print("📩 Slack Payload:", json.dumps(data, indent=2))
 
         action_id = data['actions'][0]['action_id']
-        action_value = json.loads(data['actions'][0]['value'])
-        repo = action_value.get("repo", "unknown")
-        pr_number = action_value.get("number", "unknown")
+        action_value = data['actions'][0]['value']
+        metadata=json.loads(data.get("private_metadata","{}"))
+        repo = metadata.get("repo", "unknown")
+        pr_number = metadata.get("pr_number", "unknown")
         user = data.get("user", {}).get("username", "unknown")
 
         if action_id == "merge_action":
-            if pr_number is None:
-                pr_number=123
-                return pr_number
+            try:
+                pr_number = int(pr_number)
+            except (ValueError, TypeError):
+                return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
             tool_call = {
                 "id": "merge_call_1",
                 "name": "merge_pull_request",
                 "args": {
                     "repo": repo,
-                    "pr_number": int(pr_number)
+                    "pr_number": pr_number
                 }
             }
         elif action_id == "cancel_action":

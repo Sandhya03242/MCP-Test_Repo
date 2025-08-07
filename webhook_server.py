@@ -34,12 +34,23 @@ async def handle_webhook(request):
         pr_number=None
         title=''
         description=''
-        if event_type=='pull_request':
-            pr=data.get("pull_request",{})
-            title=pr.get("title",'')
-            description=pr.get("body",'')
-            pr_number=pr.get("number")
-            # repo_full_name=data.get("repository",{}).get("full_name")
+        if event_type == 'pull_request':
+            pr = data.get("pull_request")
+            if pr:
+                title = pr.get("title", "")
+                description = pr.get("body", "")
+                pr_number = pr.get("number")
+                print("Extracted PR number:", pr_number)
+            else:
+                print("pull_request key not found in payload")
+
+            repo = data.get("repository")
+            if repo:
+                repo_full_name = repo.get("full_name")
+                print("Extracted repo_full_name:", repo_full_name)
+            else:
+                print("repository key not found in payload")
+
         elif event_type=='issues':
             issue=data.get("issue",{})
             title=issue.get("title",'')
