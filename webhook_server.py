@@ -11,18 +11,22 @@ async def handle_webhook(request):
     try:
         data=await request.json()
         event_type=request.headers.get("X-GitHub-Event","unknown")
+        print("Received event type:", request.headers.get("X-GitHub-Event"))
+        print("Payload repository field:", data.get("repository"))
         pr_number=None
-        repo_full_name=None
+        # repo_full_name=None
+        repo = data.get("repository", {})
+        print("Repo dict received from webhook:", repo)
+        repo_full_name = repo.get("full_name")
+        print("Extracted repo full_name:", repo_full_name)
         title=''
         description=''
         if event_type=='pull_request':
-            pr=data.get("pull_request",{}).get("number")
-            print("PR payload",pr)
+            pr=data.get("pull_request",{})
             title=pr.get("title",'')
             description=pr.get("body",'')
-            pr_number=pr.get("pull_request", {}).get("number") or pr.get("number")
-
-            repo_full_name=data.get("repository",{}).get("full_name")
+            pr_number=pr.get("number")
+            # repo_full_name=data.get("repository",{}).get("full_name")
         elif event_type=='issues':
             issue=data.get("issue",{})
             title=issue.get("title",'')
@@ -56,7 +60,7 @@ async def handle_webhook(request):
             "timestamp":ist_now,
             "event_type":event_type,
             "action":data.get("action"),
-            "repository": {"full_name": repo_full_name},
+            "repository": repo_full_name,
             "pr_number":pr_number,
             "title":title,
             "description":description,
@@ -79,6 +83,9 @@ async def handle_webhook(request):
         return web.json_response({"status":"received"})
     except Exception as e:
         return web.json_response({"error":str(e)},status=400)
+    except Exception as e:
+        print("Error parsing payload:", e)
+        return web.Response(status=500, text="Payload parsing failed")
     
 app=web.Application()
 app.router.add_post("/webhook/github",handle_webhook)

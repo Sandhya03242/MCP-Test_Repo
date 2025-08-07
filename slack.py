@@ -6,8 +6,8 @@ from fastapi import FastAPI
 from typing import TypedDict,List, Union
 from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 import asyncio
-import json
 from dotenv import load_dotenv
+import json
 load_dotenv()
 
 mcp=FastMCP(name="slack_mcp")
@@ -16,52 +16,43 @@ SLACK_BOT_TOKEN=os.environ.get("SLACK_API_KEY")
 
 
 @mcp.tool()
-def send_slack_notification(message:str,pr_number:int=None,repo:str=None,event_type:str=None)->str:
+def send_slack_notification(message:str,event_type:str="unknown",repo:str=None,pr_number:int=None)->str:
     """Send a formatted notification to the team slack channel."""
-    # webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
-    if not SLACK_BOT_TOKEN:
-        return "Error: SLACK_API_KEY environment  variable not set"
+    webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
+    if not webhook_url:
+        return "Error: SLACK_WEBHOOK_URL environment  variable not set"
     blocks=[
-        {
-            "type":"section",
-            "text":{"type":"mrkdwn","text":message}
+        {"type":"section","text":{"type":"mrkdwn","text":message}}]
+    # repo="Sandhya03242/MCP-Test_Repo"
+    # pr_number=123
+    if event_type=='pull_request':
+        blocks.append({
+            "type":"actions",
+            "elements":[
+                {
+                    "type":"button",
+                    "text":{"type":"plain_text","text":"✅ Merge"},
+                    "style":"primary",
+                    "value":json.dumps({"action": "merge", "repo": repo, "pr_number": pr_number}),
+                    "action_id":"merge_action"
+                },
+                {
+                    "type":"button",
+                    "text":{"type":"plain_text","text":"❌ Cancel"},
+                    "style":"danger",
+                    "value":json.dumps({"action": "cancel", "repo": repo, "pr_number": pr_number}),
+                    "action_id":"cancel_action"
+                }
+            ]
         }
-    ]
-    if pr_number is None:
-        pr_number=123
-
-
-    if (event_type and event_type.lower() == "pull_request" and repo is not None):
-
-            blocks.append({
-                "type": "actions",
-                "elements": [
-                    {
-                        "type": "button",
-                        "text": {"type": "plain_text", "text": "✅ Merge"},
-                        "style": "primary",
-                        "value": json.dumps({"action": "merge", "repo": repo, "pr_number": pr_number}),
-                        "action_id": "merge_pr"
-                    },
-                    {
-                        "type": "button",
-                        "text": {"type": "plain_text", "text": "❌ Cancel"},
-                        "style": "danger",
-                        "value": json.dumps({"action": "cancel"}),
-                        "action_id": "cancel_pr"
-                    }
-                ]
-            })
-
-
+        )
     payload={
-        "channel":"#general",
-        "blocks":blocks,
-        "text":message,
-        "mrkdwn":True
+            "blocks":blocks,
+            "text":message,
+            "mrkdwn":True
         }
     try:
-        response=requests.post("https://slack.com/api/chat.postMessage",json=payload,timeout=10)
+        response=requests.post(webhook_url,json=payload,timeout=10)
         if response.status_code==200:
             return "✅ Message sent successfully to slack."
         else:

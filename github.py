@@ -105,7 +105,7 @@ def summarize_latest_event()->str:
 
 
     return (
-        f"# Event: {event_type}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
+        f"# Event: {event_type}\nRepository:{repo}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
     )
 
 def merge_pull_request(repo:str,pr_number:int)->str:

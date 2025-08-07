@@ -10,7 +10,7 @@ from slack import slack_tools,slack_agent
 import uvicorn
 from multiprocessing import Process
 from datetime import datetime
-from github import merge_pull_request
+from zoneinfo import ZoneInfo
 import pytz
 import json
 
@@ -85,21 +85,17 @@ app=FastAPI()
 async def notify(request: Request):
     payload = await request.json()
     event_type = payload.get('event_type', 'unknown')
-    pr_number=None
-    if event_type == "pull_request":
-        action = payload.get("action")
-        if action == "synchronize":
-            return {"status": "ignored synchronize event"}
-        
-        pr_number = payload.get("pull_request", {}).get("number") or payload.get("number")
+    if event_type=="pull_request":
+        action=payload.get("action")
+        if action=='synchronize':
+            return {"status":"ignored synchronize event"}
 
+    repo = payload.get("repository", "unknown")
+    pr_number=payload.get("pr_number")
 
-    repo = payload.get('repository', {}).get('full_name', 'unknown')
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
-
-
     timestamp=payload.get("timestamp")
     if timestamp:
         timestamp=convert_utc_to_ist(timestamp)
@@ -109,8 +105,6 @@ async def notify(request: Request):
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
-    print("📥 In /notify: event_type=", event_type, "repo=", repo, "pr_number=", pr_number)
-
     tool_args={
         "message":message,
         "event_type":event_type
@@ -118,9 +112,6 @@ async def notify(request: Request):
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
-    else:
-        tool_args.pop("repo", None)
-        tool_args.pop("pr_number", None)
     state={
         "messages":[
             HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
@@ -139,29 +130,32 @@ async def notify(request: Request):
 # -------------------------------------------------------------------------------------------------------------------------------
 
 @app.post("/slack/interact")
-async def slack_interact(request:Request):
+async def handler_slack_actions(request:Request):
     form_data=await request.form()
-    payload=json.loads(form_data['payload'])
-    
-    action=payload['actions'][0]
-    data=json.loads(action['value'])
-    if data.get("action")=="merge":
-        repo=data['repo']
-        pr_number=data.get("number")
+    payload=form_data.get("payload")
+    if not payload:
+        return PlainTextResponse("No payload received",status_code=400)
+    data=json.loads(payload)
+    action_id=data['actions'][0]['action_id']
+    action_value=json.loads(data['action'][0]['value'])
+    repo=action_value.get("repo","unknown")
+    pr_number=action_value.get("pr_number","unknown")
+    user=data.get("user",{}).get("username","unknown")
+    # pr_number=123
 
-        merge_result=merge_pull_request(repo,pr_number)
-        message=f"✅ Merge PR #{pr_number} in {repo} merged successfully."
-    elif data.get("action")=="cancel":
-        message=f"❌ Merge cancelled"
-
+    if action_id=="merge_action":
+        message=f"merge pull request {pr_number} in {repo}"
+    elif action_id=='cancel_action':
+        message=f"cancel pull request {pr_number} in {repo}"
+    else:
+        return JSONResponse({"text":"unknown action"},status_code=400)
     state={
-        "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}")
-        ]
+        [HumanMessage(content=message)]
     }
+
     result=agent.invoke(state)
-    print("Agent: ", result['messages'][-1].content)
-    return {"status": "notified and send to slack"}
+    return JSONResponse({"text":f"Action {action_id} triggered by {user}"})
+
 
 # ---------------------------------------------------------------------------------------------------------------------------------
 def run_agent():
