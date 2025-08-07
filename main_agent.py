@@ -147,9 +147,6 @@ async def handler_slack_actions(request: Request):
         user = data.get("user", {}).get("username", "unknown")
 
         if action_id == "merge_action":
-            if pr_number is None:
-                pr_number=123
-                return pr_number
             tool_call = {
                 "id": "merge_call_1",
                 "name": "merge_pull_request",
