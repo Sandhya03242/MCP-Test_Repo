@@ -16,9 +16,9 @@ SLACK_BOT_TOKEN=os.environ.get("SLACK_API_KEY")
 
 
 @mcp.tool()
-def send_slack_notification(message:str,event_type:str="unknown",repo:str="Sandhya03242/MCP-Test_Repo",pr_number:int="48")->str:
+def send_slack_notification(message:str,event_type:str="unknown",repo:str="Sandhya03242/MCP-Test_Repo",pr_number:int="49")->str:
     """Send a formatted notification to the team slack channel."""
-    webhook_url="https://hooks.slack.com/services/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"
+    webhook_url="https://hooks.slack.com/services/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"
     if not webhook_url:
         return "Error: SLACK_WEBHOOK_URL environment  variable not set"
     blocks=[
