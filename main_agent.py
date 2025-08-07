@@ -90,10 +90,7 @@ async def notify(request: Request):
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
 
-    pr_url=payload.get("pull_request",{}).get("url","").split("/")
-    pr_url
-    if len(pr_url)>=7:
-        repo=f"{pr_url[4]}/{pr_url[5]}"
+    repo = payload.get("repository", "unknown")
 
     pr_number=payload.get("number")
 
