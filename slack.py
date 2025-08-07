@@ -16,16 +16,16 @@ SLACK_BOT_TOKEN=os.environ.get("SLACK_API_KEY")
 
 
 @mcp.tool()
-def send_slack_notification(message:str,event_type:str="unknown",repo:str=None,pr_number:int=None)->str:
+def send_slack_notification(message:str,event_type:str="unknown",repo:str="Sandhya03242/MCP-Test_Repo",pr_number:int="48")->str:
     """Send a formatted notification to the team slack channel."""
-    webhook_url=os.environ.get("SLACK_WEBHOOK_URL")
+    webhook_url="https://hooks.slack.com/services/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"
     if not webhook_url:
         return "Error: SLACK_WEBHOOK_URL environment  variable not set"
     blocks=[
         {"type":"section","text":{"type":"mrkdwn","text":message}}]
-    print(f"DEBUG send_slack_notification called with repo={repo}, pr_number={pr_number}")
-    value_payload = json.dumps({"repo": repo, "pr_number": pr_number})
     if event_type=='pull_request':
+        value_payload = json.dumps({"repo": repo, "pr_number": pr_number})
+
         blocks.append({
             "type":"actions",
             "elements":[
@@ -52,6 +52,8 @@ def send_slack_notification(message:str,event_type:str="unknown",repo:str=None,p
             "mrkdwn":True,
             "private_metadata":json.dumps({"repo":repo,"pr_number":pr_number})
         }
+    print(f"DEBUG send_slack_notification called with repo={repo}, pr_number={pr_number}")
+
     try:
         response=requests.post(webhook_url,json=payload,timeout=10)
         if response.status_code==200:

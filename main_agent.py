@@ -92,12 +92,8 @@ async def notify(request: Request):
     repo_info=payload.get("repository",{})
     repo=repo_info.get("full_name","unknown") if isinstance(repo_info,dict) else str(repo_info)
 
-    pr_number = (payload.get("number")or payload.get("pull_request", {}).get("number") or None)
+    pr_number = payload.get("pr_number") or payload.get("number") or payload.get("pull_request", {}).get("number")
 
-    if pr_number is None:
-        pr_number_safe="unknown"
-    else:
-        pr_number_safe=pr_number
     if repo is None:
         repo_safe="unknown"
     else:
@@ -118,8 +114,8 @@ async def notify(request: Request):
     tool_args={
         "message":message,
         "event_type":event_type,
-        "repo":repo_safe,
-        "pr_number":pr_number_safe
+        "repo":repo,
+        "pr_number":pr_number
     }
     print("DEBUG: repo =", repo, "pr_number =", pr_number)
     if event_type=="pull_request" and pr_number and repo:
@@ -155,7 +151,10 @@ async def handler_slack_actions(request: Request):
 
         action_id = data['actions'][0]['action_id']
         action_value = data['actions'][0]['value']
-        metadata=json.loads(data.get("private_metadata","{}"))
+        try:
+            metadata=json.loads(action_value)
+        except json.JSONDecodeError:
+            metadata={}
         repo = metadata.get("repo", "unknown")
         pr_number = metadata.get("pr_number", "unknown")
         user = data.get("user", {}).get("username", "unknown")
@@ -169,6 +168,7 @@ async def handler_slack_actions(request: Request):
                 "id": "merge_call_1",
                 "name": "merge_pull_request",
                 "args": {
+                    "message":f"✅ Merge pull request #{pr_number} in {repo}",
                     "repo": repo,
                     "pr_number": pr_number
                 }

@@ -1,385 +1,5 @@
 [
   {
-    "timestamp": "2025-08-07T08:45:39.813925+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "2 commits pushed",
-    "description": "Updating\nUpdating",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T08:46:09.361098+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 31,
-    "title": "Update Test.txt",
-    "description": "testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T08:46:44.221881+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T08:46:50.772639+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-1",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T08:47:26.977883+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 32,
-    "title": "Test",
-    "description": "Testing the code",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T08:48:47.802054+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 32,
-    "title": "Test",
-    "description": "Testing the code",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:06:53.999014+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:06:54.072572+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-2",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:07:04.667193+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 33,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:32:55.375733+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-3",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:32:55.457265+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:33:24.969533+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 34,
-    "title": "Test file",
-    "description": "testing the code",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:45:01.099765+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 34,
-    "title": "Test file",
-    "description": "testing the code",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:57:31.187834+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 33,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T09:58:16.357413+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 35,
-    "title": "Update Test.txt",
-    "description": "Testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:08:47.898871+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 35,
-    "title": "Update Test.txt",
-    "description": "Testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:09:17.413923+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 36,
-    "title": "Update Test.txt",
-    "description": "Testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:12:07.606437+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 36,
-    "title": "Update Test.txt",
-    "description": "Testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:21:48.672557+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "2 commits pushed",
-    "description": "Updating\nUpdating",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:22:19.986503+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:22:20.030221+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-2",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:22:35.256686+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 37,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:23:26.836501+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 37,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:33:52.588967+05:30",
-    "event_type": "pull_request",
-    "action": "reopened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 37,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:47:02.318012+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:47:02.387719+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-3",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:47:12.421470+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 38,
-    "title": "Update Test.txt",
-    "description": "Testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:55:01.278524+05:30",
-    "event_type": "pull_request",
-    "action": "closed",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 38,
-    "title": "Update Test.txt",
-    "description": "Testing",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:55:31.720756+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:55:31.871318+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-4",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:55:37.573881+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 39,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:56:22.342746+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-5",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:56:22.618760+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:56:27.133838+05:30",
-    "event_type": "pull_request",
-    "action": "opened",
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": 40,
-    "title": "Update Test.txt",
-    "description": null,
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:58:12.718657+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Updating",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:59:19.679677+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Updating",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:59:47.040685+05:30",
-    "event_type": "create",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "Created branch: Sandhya03242-patch-6",
-    "description": "",
-    "sender": "Sandhya03242"
-  },
-  {
-    "timestamp": "2025-08-07T10:59:47.262904+05:30",
-    "event_type": "push",
-    "action": null,
-    "repository": "Sandhya03242/MCP-Test_Repo",
-    "pr_number": null,
-    "title": "1 commits pushed",
-    "description": "Update Test.txt",
-    "sender": "Sandhya03242"
-  },
-  {
     "timestamp": "2025-08-07T10:59:59.558935+05:30",
     "event_type": "pull_request",
     "action": "opened",
@@ -997,6 +617,386 @@
     "pr_number": 47,
     "title": "Update Test.txt",
     "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:08:43.520034+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "1 commits pushed",
+    "description": "Updating",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:31:13.079497+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:31:16.543669+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:34:09.332048+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:34:12.605447+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:34:56.350553+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:35:00.352997+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:36:50.572362+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:36:53.751018+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:38:23.867897+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:38:26.468043+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:39:05.516514+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:39:08.650495+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:42:24.533897+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:42:27.739829+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:44:24.642250+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:44:28.293068+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:45:20.566709+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:50:52.240441+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:51:48.626102+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:51:52.496093+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:56:22.514711+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:56:25.918615+05:30",
+    "event_type": "pull_request",
+    "action": "reopened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:17.776169+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 47,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:28.084854+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:28.147024+05:30",
+    "event_type": "delete",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "Deleted branch: Sandhya03242-patch-3",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:31.736954+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:32.007040+05:30",
+    "event_type": "delete",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "Deleted branch: Sandhya03242-patch-2",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:33.123945+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 46,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:35.039354+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:35.177030+05:30",
+    "event_type": "delete",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "Deleted branch: Sandhya03242-patch-1",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:57:35.424829+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 45,
+    "title": "Update Test.txt",
+    "description": null,
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:58:13.061743+05:30",
+    "event_type": "create",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "Created branch: Test",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:58:13.235337+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "",
+    "description": "",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T14:58:38.940680+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "1 commits pushed",
+    "description": "Update Test.txt",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T15:01:18.485051+05:30",
+    "event_type": "pull_request",
+    "action": "opened",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 48,
+    "title": "Update Test.txt",
+    "description": "Testing",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T15:03:09.326011+05:30",
+    "event_type": "pull_request",
+    "action": "closed",
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": 48,
+    "title": "Update Test.txt",
+    "description": "Testing",
+    "sender": "Sandhya03242"
+  },
+  {
+    "timestamp": "2025-08-07T15:03:09.361885+05:30",
+    "event_type": "push",
+    "action": null,
+    "repository": "Sandhya03242/MCP-Test_Repo",
+    "pr_number": null,
+    "title": "2 commits pushed",
+    "description": "Update Test.txt\nMerge pull request #48 from Sandhya03242/Test\n\nUpdate Test.txt",
     "sender": "Sandhya03242"
   }
 ]
