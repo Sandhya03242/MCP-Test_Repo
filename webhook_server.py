@@ -31,6 +31,7 @@ async def handle_webhook(request):
         print("Repo dict received from webhook:", repo)
         repo_full_name = repo.get("full_name")
         print("Extracted repo full_name:", repo_full_name)
+        pr_number=None
         title=''
         description=''
         if event_type=='pull_request':
