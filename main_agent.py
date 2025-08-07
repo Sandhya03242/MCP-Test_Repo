@@ -90,8 +90,12 @@ async def notify(request: Request):
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
 
-    repo = payload.get("repository", "unknown")
-    pr_number=payload.get("pr_number")
+    pr_url=payload.get("pull_request",{}).get("url","").split("/")
+    pr_url
+    if len(pr_url)>=7:
+        repo=f"{pr_url[4]}/{pr_url[5]}"
+
+    pr_number=payload.get("number")
 
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
@@ -143,10 +147,13 @@ async def handler_slack_actions(request: Request):
         action_id = data['actions'][0]['action_id']
         action_value = json.loads(data['actions'][0]['value'])
         repo = action_value.get("repo", "unknown")
-        pr_number = action_value.get("pr_number", "unknown")
+        pr_number = action_value.get("number", "unknown")
         user = data.get("user", {}).get("username", "unknown")
 
         if action_id == "merge_action":
+            if pr_number is None:
+                pr_number=123
+                return pr_number
             tool_call = {
                 "id": "merge_call_1",
                 "name": "merge_pull_request",
