@@ -1,19 +1,31 @@
 import json
 from datetime import datetime
 from pathlib import Path
-from aiohttp import web
+from aiohttp import web, ClientSession
 import requests
 from zoneinfo import ZoneInfo
+import asyncio
 import pytz
 
 EVENTS_FILE=Path(__file__).parent / "github_events.json"
+
+async def notify_manager(event):
+    async with ClientSession() as session:
+        try:
+            async with session.post("http://localhost:8001/notify",json=event, timeout=5) as rep:
+                if rep.status !=200:
+                    print(f"Notify failed with status {rep.status}")
+        except Exception as notify_error:
+            print(F"Failed to notify manager agent:{notify_error}")
+
+
+
 async def handle_webhook(request):
     try:
         data=await request.json()
         event_type=request.headers.get("X-GitHub-Event","unknown")
         print("Received event type:", request.headers.get("X-GitHub-Event"))
         print("Payload repository field:", data.get("repository"))
-        pr_number=None
         # repo_full_name=None
         repo = data.get("repository", {})
         print("Repo dict received from webhook:", repo)
@@ -75,10 +87,7 @@ async def handle_webhook(request):
         with open(EVENTS_FILE,"w") as f:
             json.dump(events,f,indent=2)
         
-        try:
-            requests.post("http://localhost:8001/notify",json=event)
-        except Exception as notify_error:
-            print(F"Failed to notify manager agent:{notify_error}")
+        asyncio.create_task(notify_manager(event))
 
         return web.json_response({"status":"received"})
     except Exception as e:

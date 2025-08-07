@@ -130,31 +130,69 @@ async def notify(request: Request):
 # -------------------------------------------------------------------------------------------------------------------------------
 
 @app.post("/slack/interact")
-async def handler_slack_actions(request:Request):
-    form_data=await request.form()
-    payload=form_data.get("payload")
+async def handler_slack_actions(request: Request):
+    form_data = await request.form()
+    payload = form_data.get("payload")
     if not payload:
-        return PlainTextResponse("No payload received",status_code=400)
-    data=json.loads(payload)
-    action_id=data['actions'][0]['action_id']
-    action_value=json.loads(data['action'][0]['value'])
-    repo=action_value.get("repo","unknown")
-    pr_number=action_value.get("pr_number","unknown")
-    user=data.get("user",{}).get("username","unknown")
-    # pr_number=123
+        return PlainTextResponse("No payload received", status_code=400)
 
-    if action_id=="merge_action":
-        message=f"merge pull request {pr_number} in {repo}"
-    elif action_id=='cancel_action':
-        message=f"cancel pull request {pr_number} in {repo}"
-    else:
-        return JSONResponse({"text":"unknown action"},status_code=400)
-    state={
-        [HumanMessage(content=message)]
-    }
+    try:
+        data = json.loads(payload)
+        print("📩 Slack Payload:", json.dumps(data, indent=2))
 
-    result=agent.invoke(state)
-    return JSONResponse({"text":f"Action {action_id} triggered by {user}"})
+        action_id = data['actions'][0]['action_id']
+        action_value = json.loads(data['actions'][0]['value'])
+        repo = action_value.get("repo", "unknown")
+        pr_number = action_value.get("pr_number", "unknown")
+        user = data.get("user", {}).get("username", "unknown")
+
+        if action_id == "merge_action":
+            if pr_number is None:
+                pr_number=123
+                return pr_number
+            tool_call = {
+                "id": "merge_call_1",
+                "name": "merge_pull_request",
+                "args": {
+                    "repo": repo,
+                    "pr_number": int(pr_number)
+                }
+            }
+        elif action_id == "cancel_action":
+            tool_call = {
+                "id": "cancel_call_1",
+                "name": "send_slack_notification",
+                "args": {
+                    "message": f"❌ Cancelled pull request #{pr_number} in {repo} by {user}",
+                    "event_type": "pull_request",
+                    "repo": repo,
+                    "pr_number": pr_number
+                }
+            }
+        else:
+            return JSONResponse({"text": "Unknown action"}, status_code=400)
+
+        state = {
+            "messages": [
+                HumanMessage(
+                    content=f"User {user} triggered {action_id}",
+                    additional_kwargs={
+                        "tool_calls": [tool_call]
+                    }
+                )
+            ]
+        }
+
+        print("🚀 Invoking agent with state:", state)
+        result = agent.invoke(state)
+        print("✅ Agent result:", result['messages'][-1].content)
+
+        return JSONResponse({"text": f"Action {action_id} triggered by {user}"})
+
+    except Exception as e:
+        print("❌ Error in /slack/interact:", e)
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 
 
 # ---------------------------------------------------------------------------------------------------------------------------------

@@ -108,6 +108,7 @@ def summarize_latest_event()->str:
         f"# Event: {event_type}\nRepository:{repo}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
     )
 
+@mcp.tool
 def merge_pull_request(repo:str,pr_number:int)->str:
     """Merge a PR"""
     try:
@@ -128,7 +129,7 @@ def merge_pull_request(repo:str,pr_number:int)->str:
 class GitHubAgentState(TypedDict):
     messages:List[Union[HumanMessage,AIMessage,ToolMessage]]
 
-gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn]
+gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn,merge_pull_request.fn]
 github_tools= {tool.__name__:tool for tool in gt_tools}
 
 def github_agent(state:GitHubAgentState)->GitHubAgentState:
