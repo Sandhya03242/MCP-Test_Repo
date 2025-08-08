@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from fastapi import FastAPI,Request,Form
 from fastapi.responses import JSONResponse, PlainTextResponse
-from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
+from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage, ToolCall
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 from langgraph.graph.message import add_messages
@@ -25,7 +25,7 @@ class AgentState(TypedDict):
 
 tools=gt_tools + list(slack_tools.values())
 
-llm=ChatOpenAI(model="gpt-4.1-nano",temperature=0).bind_tools(tools=tools,tool_choice='auto')
+llm=ChatOpenAI(model="gpt-4.1-nano",temperature=0).bind_tools(tools=tools,tool_choice='none')
 
 def should_continue(state:AgentState):
     """check if last message contain tool"""
@@ -89,15 +89,19 @@ async def notify(request: Request):
         action=payload.get("action")
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
-    repo_info=payload.get("repository",{})
-    repo=repo_info.get("full_name","unknown") if isinstance(repo_info,dict) else str(repo_info)
+    repo_info = payload.get("repository",{})
+    repo = repo_info.get("full_name", "unknown")
 
-    pr_number = payload.get("pr_number") or payload.get("number") or payload.get("pull_request", {}).get("number")
 
-    if repo is None:
-        repo_safe="unknown"
-    else:
-        repo_safe=repo
+    pr_number = payload.get("pr_number")
+
+    if not pr_number:
+        pr = payload.get("pull_request")
+        if isinstance(pr, dict):
+            pr_number = pr.get("number")
+        if not pr_number:
+            pr_number = payload.get("number") 
+
 
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
@@ -111,26 +115,28 @@ async def notify(request: Request):
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
     message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
     print(message)
+
+
+
+    
     tool_args={
         "message":message,
         "event_type":event_type,
-        "repo":repo,
-        "pr_number":pr_number
+        "repo":str(repo) if repo else "",
+        "pr_number":str(pr_number) if pr_number else ""
     }
+
+
     print("DEBUG: repo =", repo, "pr_number =", pr_number)
+
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
+    
+    tool_call=ToolCall(id="slack_call_1",name="send_slack_notification",args=json.dumps(tool_args))
     state={
         "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
-                         additional_kwargs={
-                             'tool_calls':[{
-                                 "id":"slack_call_1",
-                                 "name":"send_slack_notification",
-                                 "args":tool_args
-                             }]
-                         })
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",tool_calls=[tool_call])
         ]
     }
     result=agent.invoke(state)
@@ -147,7 +153,7 @@ async def handler_slack_actions(request: Request):
 
     try:
         data = json.loads(payload)
-        print("📩 Slack Payload:", json.dumps(data, indent=2))
+        # print("📩 Slack Payload:", json.dumps(data, indent=2))
 
         action_id = data['actions'][0]['action_id']
         action_value = data['actions'][0]['value']
@@ -156,7 +162,7 @@ async def handler_slack_actions(request: Request):
         except json.JSONDecodeError:
             metadata={}
         repo = metadata.get("repo", "unknown")
-        pr_number = metadata.get("pr_number", "unknown")
+        pr_number = metadata.get("pr_number")
         user = data.get("user", {}).get("username", "unknown")
 
         if action_id == "merge_action":
@@ -167,22 +173,22 @@ async def handler_slack_actions(request: Request):
             tool_call = {
                 "id": "merge_call_1",
                 "name": "merge_pull_request",
-                "args": {
+                "args":json.dumps({
                     "message":f"✅ Merge pull request #{pr_number} in {repo}",
-                    "repo": repo,
-                    "pr_number": pr_number
-                }
+                    "repo": str(repo),
+                    "pr_number": str(pr_number)
+                })
             }
         elif action_id == "cancel_action":
             tool_call = {
                 "id": "cancel_call_1",
                 "name": "send_slack_notification",
-                "args": {
+                "args": json.dumps({
                     "message": f"❌ Cancelled pull request #{pr_number} in {repo} by {user}",
                     "event_type": "pull_request",
-                    "repo": repo,
-                    "pr_number": pr_number
-                }
+                    "repo": str(repo),
+                    "pr_number": str(pr_number)
+                })
             }
         else:
             return JSONResponse({"text": "Unknown action"}, status_code=400)

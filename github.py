@@ -8,6 +8,8 @@ from langchain_core.messages import HumanMessage, AIMessage, ToolMessage
 from datetime import datetime
 from zoneinfo import ZoneInfo
 import pytz
+import os
+import requests
 
 load_dotenv()
 
@@ -110,17 +112,22 @@ def summarize_latest_event()->str:
 
 @mcp.tool
 def merge_pull_request(repo:str,pr_number:int)->str:
-    """Merge a PR"""
-    try:
-        result=subprocess.run(
-            ['gh','pr','merge',str(pr_number),"--repo",repo,'--merge'],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        return f"✅ Merge PR #{pr_number} merged successfully.\n{result.stdout}"
-    except subprocess.CalledProcessError as e:
-        return f"❌ Failed to merge PR:\n{e.stderr}"
+    """Merge a PR using GitHub API"""
+    url=f"https://api.github.com/repos/{repo}/pulls/{pr_number}/merge"
+    token=os.environ.get("GITHUB_PAT")
+
+    headers={
+        "Authorization":f"Bearer {token}",
+        "Accept":"application/vnd.github+json"
+    }
+    response=requests.put(url=url,headers=headers)
+    if response.status_code==200:
+        return f"✅ PR #{pr_number} merged successfully.\n{response.json()}"
+    elif response.status_code==405:
+        return f"❌ Merge not allowed: {response.json().get('message')}"
+    else:
+        return f"❌ Failed to merge PR:\n{response.status_code}-{response.text}"
+    
 
 
 

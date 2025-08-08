@@ -84,7 +84,7 @@ async def handle_webhook(request):
             "timestamp":ist_now,
             "event_type":event_type,
             "action":data.get("action"),
-            "repository": repo_full_name,
+            "repository": data.get("repository", {}),
             "pr_number":pr_number,
             "title":title,
             "description":description,
