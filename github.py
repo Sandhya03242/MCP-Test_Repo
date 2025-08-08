@@ -26,6 +26,8 @@ def get_recent_actions_events()->str:
     return []
 
 
+
+
 @mcp.tool
 def get_repository_detail() -> str:
     """Return basic repository info and summary of recent events"""
@@ -111,8 +113,8 @@ def summarize_latest_event()->str:
     )
 
 import requests
-# repo = "Sandhya03242/MCP-Test_Repo"
-# pr_number = "58"
+repo = "Sandhya03242/MCP-Test_Repo"
+pr_number = "63"
 
 @mcp.tool
 def merge_pull_request(repo: str, pr_number: int) -> str:

@@ -157,7 +157,7 @@ async def handler_slack_actions(request: Request):
 
     try:
         data = json.loads(payload)
-        print("📩 Slack Payload:", json.dumps(data, indent=2))
+        # print("📩 Slack Payload:", json.dumps(data, indent=2))
 
         action_id = data['actions'][0]['action_id']
         action_value = data['actions'][0]['value']
@@ -180,9 +180,12 @@ async def handler_slack_actions(request: Request):
 
             return JSONResponse({"text": f"{result_text}"})
         elif action_id == "cancel_action":
-            pr_number=int(pr_number)
-            print(f"🔧 Calling merge_pull_request(repo={repo}, pr_number={pr_number})")
-            result_text = merge_pull_request.fn(repo=repo, pr_number=pr_number)
+            try:
+                pr_number=int(pr_number)
+            except (ValueError, TypeError):
+                return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
+            print(f"🔧 Calling close_pull_request(repo={repo}, pr_number={pr_number})")
+            result_text = close_pull_request.fn(repo=repo, pr_number=pr_number)
             print("✅ Tool Result:", result_text)
         else:
             return JSONResponse({"text": "Unknown action"}, status_code=400)
@@ -220,17 +223,15 @@ def run_agent():
 def run_server():
         uvicorn.run(app,host="0.0.0.0",port=8001,log_level='critical')
 
-if __name__ == "__main__":
-    server_process = Process(target=run_server)
+
+
+if __name__=="__main__":
+    server_process=Process(target=run_server)
     server_process.start()
 
-    try:
-        run_agent()
-    except KeyboardInterrupt:
-        print("Exiting agent input loop...")
+    run_agent()
 
     server_process.terminate()
-    server_process.join()
 
 
 
