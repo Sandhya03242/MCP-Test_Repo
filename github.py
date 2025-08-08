@@ -111,40 +111,51 @@ def summarize_latest_event()->str:
     )
 
 import requests
-repo = "Sandhya03242/MCP-Test_Repo"
-pr_number = "56"
+# repo = "Sandhya03242/MCP-Test_Repo"
+# pr_number = "58"
 
 @mcp.tool
 def merge_pull_request(repo: str, pr_number: int) -> str:
+    """Merge a PR using GitHub API"""
+    import logging
     url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/merge"
     token = os.environ.get("GITHUB_PAT")
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json"
     }
-    try:
-        response = requests.put(url=url, headers=headers, timeout=3)
-        print(f"DEBUG merge response status: {response.status_code}")
-        print(f"DEBUG merge response body: {response.text}")
 
-        if response.status_code == 200:
-            return f"✅ PR #{pr_number} merged successfully.\n{response.json()}"
-        elif response.status_code == 405:
-            return f"❌ Merge not allowed: {response.json().get('message')}"
-        else:
-            return f"❌ Failed to merge PR:\n{response.status_code}-{response.text}"
+    response = requests.put(url, headers=headers)
+    logging.info(f"Merge Request URL: {url}")
+    logging.info(f"Response Code: {response.status_code}")
+    logging.info(f"Response Body: {response.text}")
 
-    except requests.exceptions.Timeout:
-        return "❌ Merge request timed out after 3 seconds."
-    except requests.exceptions.RequestException as e:
-        return f"❌ Merge request failed: {str(e)}"
+    if response.status_code == 200:
+        return f"✅ Successfully merged PR #{pr_number} in {repo}."
+    else:
+        return f"❌ Failed to merge PR #{pr_number} in {repo}. Reason: {response.json().get('message', 'Unknown error')}"
 
+
+@mcp.tool
+def close_pull_request(repo: str, pr_number: int) -> str:
+    """Close a pull request without merging using GitHub API"""
+    url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+    token = os.environ.get("GITHUB_PAT")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+    response = requests.patch(url, json={"state": "closed"}, headers=headers)
+    if response.status_code == 200:
+        return f"✅ Closed pull request #{pr_number} in {repo}"
+    else:
+        return f"❌ Failed to close PR: {response.status_code} - {response.text}"
 
 
 class GitHubAgentState(TypedDict):
     messages:List[Union[HumanMessage,AIMessage,ToolMessage]]
 
-gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn,merge_pull_request.fn]
+gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn,merge_pull_request.fn,close_pull_request.fn]
 github_tools= {tool.__name__:tool for tool in gt_tools}
 
 def github_agent(state:GitHubAgentState)->GitHubAgentState:

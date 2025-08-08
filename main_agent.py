@@ -13,6 +13,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 import pytz
 import json
+from github import merge_pull_request, close_pull_request
 
 
 import warnings
@@ -173,26 +174,16 @@ async def handler_slack_actions(request: Request):
                 pr_number = int(pr_number)
             except (ValueError, TypeError):
                 return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
-            tool_call = {
-                "id": "merge_call_1",
-                "name": "merge_pull_request",
-                "args": {
-                    "message":f"✅ Merge pull request #{pr_number} in {repo}",
-                    "repo": repo,
-                    "pr_number": pr_number
-                }
-            }
+            print(f"🔧 Calling merge_pull_request(repo={repo}, pr_number={pr_number})")
+            result_text = merge_pull_request.fn(repo=repo, pr_number=pr_number)
+            print("✅ Tool Result:", result_text)
+
+            return JSONResponse({"text": f"{result_text}"})
         elif action_id == "cancel_action":
-            tool_call = {
-                "id": "cancel_call_1",
-                "name": "send_slack_notification",
-                "args": {
-                    "message": f"❌ Cancelled pull request #{pr_number} in {repo} by {user}",
-                    "event_type": "pull_request",
-                    "repo": repo,
-                    "pr_number": pr_number
-                }
-            }
+            pr_number=int(pr_number)
+            print(f"🔧 Calling merge_pull_request(repo={repo}, pr_number={pr_number})")
+            result_text = merge_pull_request.fn(repo=repo, pr_number=pr_number)
+            print("✅ Tool Result:", result_text)
         else:
             return JSONResponse({"text": "Unknown action"}, status_code=400)
 
@@ -200,9 +191,6 @@ async def handler_slack_actions(request: Request):
             "messages": [
                 HumanMessage(
                     content=f"User {user} triggered {action_id}",
-                    additional_kwargs={
-                        "tool_calls": [tool_call]
-                    }
                 )
             ]
         }
