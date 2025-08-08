@@ -1,7 +1,7 @@
 from langchain_openai import ChatOpenAI
 from fastapi import FastAPI,Request,Form
 from fastapi.responses import JSONResponse, PlainTextResponse
-from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage, ToolCall
+from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 from langgraph.graph.message import add_messages
@@ -25,7 +25,7 @@ class AgentState(TypedDict):
 
 tools=gt_tools + list(slack_tools.values())
 
-llm=ChatOpenAI(model="gpt-4.1-nano",temperature=0).bind_tools(tools=tools,tool_choice='none')
+llm=ChatOpenAI(model="gpt-4.1-nano",temperature=0).bind_tools(tools=tools,tool_choice='auto')
 
 def should_continue(state:AgentState):
     """check if last message contain tool"""
@@ -89,10 +89,11 @@ async def notify(request: Request):
         action=payload.get("action")
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
-    repo_info = payload.get("repository",{})
-    repo = repo_info.get("full_name", "unknown")
-
-
+    repo_info = payload.get("repository")
+    if isinstance(repo_info, dict):
+        repo = repo_info.get("full_name", "unknown")
+    else:
+        repo = str(repo_info) if repo_info else "unknown"
     pr_number = payload.get("pr_number")
 
     if not pr_number:
@@ -100,7 +101,7 @@ async def notify(request: Request):
         if isinstance(pr, dict):
             pr_number = pr.get("number")
         if not pr_number:
-            pr_number = payload.get("number") 
+            pr_number = payload.get("number")
 
 
     sender = payload.get('sender', 'unknown')
@@ -122,21 +123,23 @@ async def notify(request: Request):
     tool_args={
         "message":message,
         "event_type":event_type,
-        "repo":str(repo) if repo else "",
-        "pr_number":str(pr_number) if pr_number else ""
+        "repo":repo,
+        "pr_number":pr_number
     }
-
-
     print("DEBUG: repo =", repo, "pr_number =", pr_number)
-
     if event_type=="pull_request" and pr_number and repo:
         tool_args['repo']=repo
         tool_args['pr_number']=pr_number
-    
-    tool_call=ToolCall(id="slack_call_1",name="send_slack_notification",args=json.dumps(tool_args))
     state={
         "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",tool_calls=[tool_call])
+            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
+                         additional_kwargs={
+                             'tool_calls':[{
+                                 "id":"slack_call_1",
+                                 "name":"send_slack_notification",
+                                 "args":tool_args
+                             }]
+                         })
         ]
     }
     result=agent.invoke(state)
@@ -153,7 +156,7 @@ async def handler_slack_actions(request: Request):
 
     try:
         data = json.loads(payload)
-        # print("📩 Slack Payload:", json.dumps(data, indent=2))
+        print("📩 Slack Payload:", json.dumps(data, indent=2))
 
         action_id = data['actions'][0]['action_id']
         action_value = data['actions'][0]['value']
@@ -162,7 +165,7 @@ async def handler_slack_actions(request: Request):
         except json.JSONDecodeError:
             metadata={}
         repo = metadata.get("repo", "unknown")
-        pr_number = metadata.get("pr_number")
+        pr_number = metadata.get("pr_number", "unknown")
         user = data.get("user", {}).get("username", "unknown")
 
         if action_id == "merge_action":
@@ -173,22 +176,22 @@ async def handler_slack_actions(request: Request):
             tool_call = {
                 "id": "merge_call_1",
                 "name": "merge_pull_request",
-                "args":json.dumps({
+                "args": {
                     "message":f"✅ Merge pull request #{pr_number} in {repo}",
-                    "repo": str(repo),
-                    "pr_number": str(pr_number)
-                })
+                    "repo": repo,
+                    "pr_number": pr_number
+                }
             }
         elif action_id == "cancel_action":
             tool_call = {
                 "id": "cancel_call_1",
                 "name": "send_slack_notification",
-                "args": json.dumps({
+                "args": {
                     "message": f"❌ Cancelled pull request #{pr_number} in {repo} by {user}",
                     "event_type": "pull_request",
-                    "repo": str(repo),
-                    "pr_number": str(pr_number)
-                })
+                    "repo": repo,
+                    "pr_number": pr_number
+                }
             }
         else:
             return JSONResponse({"text": "Unknown action"}, status_code=400)
@@ -226,16 +229,21 @@ def run_agent():
         state={"messages":[HumanMessage(content=q)]}
         result=agent.invoke(state)
         print("Agent: ",result['messages'][-1].content)
-def run_sever():
+def run_server():
         uvicorn.run(app,host="0.0.0.0",port=8001,log_level='critical')
 
-if __name__=="__main__":
-    server_process=Process(target=run_sever)
+if __name__ == "__main__":
+    server_process = Process(target=run_server)
     server_process.start()
 
-    run_agent()
+    try:
+        run_agent()
+    except KeyboardInterrupt:
+        print("Exiting agent input loop...")
 
     server_process.terminate()
+    server_process.join()
+
 
 
 

@@ -110,26 +110,34 @@ def summarize_latest_event()->str:
         f"# Event: {event_type}\nRepository:{repo}\nTitle: {title}\nDescription:{description}\nTimestamp:{formatted_time}\nSource: {sender}"
     )
 
+import requests
+repo = "Sandhya03242/MCP-Test_Repo"
+pr_number = "56"
+
 @mcp.tool
-def merge_pull_request(repo:str,pr_number:int)->str:
-    """Merge a PR using GitHub API"""
-    url=f"https://api.github.com/repos/{repo}/pulls/{pr_number}/merge"
-    token=os.environ.get("GITHUB_PAT")
-
-    headers={
-        "Authorization":f"Bearer {token}",
-        "Accept":"application/vnd.github+json"
+def merge_pull_request(repo: str, pr_number: int) -> str:
+    url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}/merge"
+    token = os.environ.get("GITHUB_PAT")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
     }
-    response=requests.put(url=url,headers=headers)
-    if response.status_code==200:
-        return f"✅ PR #{pr_number} merged successfully.\n{response.json()}"
-    elif response.status_code==405:
-        return f"❌ Merge not allowed: {response.json().get('message')}"
-    else:
-        return f"❌ Failed to merge PR:\n{response.status_code}-{response.text}"
-    
+    try:
+        response = requests.put(url=url, headers=headers, timeout=3)
+        print(f"DEBUG merge response status: {response.status_code}")
+        print(f"DEBUG merge response body: {response.text}")
 
+        if response.status_code == 200:
+            return f"✅ PR #{pr_number} merged successfully.\n{response.json()}"
+        elif response.status_code == 405:
+            return f"❌ Merge not allowed: {response.json().get('message')}"
+        else:
+            return f"❌ Failed to merge PR:\n{response.status_code}-{response.text}"
 
+    except requests.exceptions.Timeout:
+        return "❌ Merge request timed out after 3 seconds."
+    except requests.exceptions.RequestException as e:
+        return f"❌ Merge request failed: {str(e)}"
 
 
 
