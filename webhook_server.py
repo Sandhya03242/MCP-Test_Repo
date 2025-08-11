@@ -31,7 +31,9 @@ async def handle_webhook(request):
         pr_number=data.get("pull_request",{}).get("number")
         title=''
         description=''
+        sender=data.get("sender",{}).get("login")
         if event_type == 'pull_request':
+            action=data.get("action")
             pr = data.get("pull_request")
             if pr:
                 title = pr.get("title", "")
@@ -47,6 +49,14 @@ async def handle_webhook(request):
                 print("Extracted repo_full_name:", repo_full_name)
             else:
                 print("repository key not found in payload")
+            if action=="closed":
+                message=f"Pull Request #{pr_number} '{title}' was closed by {sender} in repository {repo_full_name}."
+                print("Detected PR closed event: ",message)
+            elif action=="opened":
+                message=f"Pull Request #{pr_number} '{title}' was opened by {sender} in repository {repo_full_name}."
+            else:
+                message=f"Pull Request #{pr_number} '{title}' received action '{action}' by {sender}."
+
 
         elif event_type=='issues':
             issue=data.get("issue",{})

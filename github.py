@@ -137,17 +137,27 @@ def merge_pull_request(repo: str, pr_number: int) -> str:
 @mcp.tool
 def close_pull_request(repo: str, pr_number: int) -> str:
     """Close a pull request without merging using GitHub API"""
+    import logging
     url = f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
     token = os.environ.get("GITHUB_PAT")
     headers = {
         "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json"
     }
-    response = requests.patch(url, json={"state": "closed"}, headers=headers)
-    if response.status_code == 200:
-        return f"✅ Closed pull request #{pr_number} in {repo}"
-    else:
-        return f"❌ Failed to close PR: {response.status_code} - {response.text}"
+    data={"state": "closed"}
+    logging.info(f"Closing PR URL: {url}")
+    try:
+        response = requests.patch(url, json=data, headers=headers)
+        logging.info(f"Response Code: {response.status_code}")
+        logging.info(f"Response Body: {response.text}")
+        if response.status_code == 200:
+            print("closed pull_request")
+            return f"✅ Closed pull request #{pr_number} in {repo}"
+        else:
+            return f"❌ Failed to close PR: {response.status_code} - {response.text}"
+    except Exception as e:
+        logging.error(f"Exception while closing PR: {e}")
+        return f"❌ Exception while closing PR:{str(e)}"
 
 
 class GitHubAgentState(TypedDict):

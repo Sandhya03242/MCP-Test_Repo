@@ -95,7 +95,7 @@ async def notify(request: Request):
         action=payload.get("action")
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
-        if action not in ['opened',"reopened"]:
+        if action not in ['opened',"reopened","closed"]:
              return {"status":f"Ignored PR action {action}"}
     repo_info = payload.get("repository")
     if isinstance(repo_info, dict):
@@ -129,26 +129,26 @@ async def notify(request: Request):
         "message":message,
         "event_type":event_type,
         "repo":repo,
-        "pr_number":pr_number
+        "pr_number":pr_number,
     }
     slack_response=send_slack_notification.fn(message=message,event_type=event_type,repo=repo,pr_number=pr_number)
     print("Slack response",slack_response)
-    state={
-        "messages":[
-            HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
-                         additional_kwargs={
-                             'tool_calls':[{
-                                 "id":"slack_call_1",
-                                 "name":"send_slack_notification",
-                                 "args":tool_args
-                             }]
-                         })
-        ]
-    }
-    loop=asyncio.get_event_loop()
-    result=await loop.run_in_executor(executor,agent.invoke,state)
-    # result=agent.invoke(state)
-    print("Agent: ", result['messages'][-1].content)
+    # state={
+    #     "messages":[
+    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
+    #                      additional_kwargs={
+    #                          'tool_calls':[{
+    #                              "id":"slack_call_1",
+    #                              "name":"send_slack_notification",
+    #                              "args":tool_args
+    #                          }]
+    #                      })
+    #     ]
+    # }
+    # loop=asyncio.get_event_loop()
+    # result=await loop.run_in_executor(executor,agent.invoke,slack_response)
+    # # result=agent.invoke(state)
+    # print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 # -------------------------------------------------------------------------------------------------------------------------------
 
@@ -186,17 +186,17 @@ async def handler_slack_actions(request: Request):
                     return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
             
             result_text=close_pull_request.fn(repo=repo,pr_number=pr_number)
-            slack_msg=f"❌ Colsed pull request #{pr_number} in {repo} by {user}"
-            send_slack_notification.fn(message=slack_msg,repo=repo,pr_number=pr_number)
+            return JSONResponse({"text":f"{result_text}"})
+            # slack_msg=f"❌ Closed pull request #{pr_number} in {repo} by {user}"
+            # send_slack_notification.fn(message=slack_msg,repo=repo,pr_number=pr_number)
         else:
-            return JSONResponse({"text":"unknown action"},status_code=400)
-        
-        state = {
-            "messages": [
-                HumanMessage(
-                    content=f"User: {user} triggered {action_id}")]}
+            slack_message=f"{user} triggered {action_id}"
+            state = {
+                "messages": [
+                    HumanMessage(
+                        content=slack_message)]}
 
-        result=agent.invoke(state)
+            result=agent.invoke(state)
         return JSONResponse({"text":f"Action {action_id} triggered by {user}"})
     except Exception as e:
         print("❌ Error in /slack/interact:", e)
@@ -214,11 +214,11 @@ def run_agent():
         state={"messages":[HumanMessage(content=q)]}
         result=agent.invoke(state)
         print("Agent: ",result['messages'][-1].content)
-def run_sever():
+def run_server():
         uvicorn.run(app,host="0.0.0.0",port=8001,log_level='critical')
 
 if __name__=="__main__":
-    server_process=Process(target=run_sever)
+    server_process=Process(target=run_server)
     server_process.start()
 
     run_agent()
