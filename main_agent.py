@@ -186,18 +186,21 @@ async def handler_slack_actions(request: Request):
                     return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
             
             result_text=close_pull_request.fn(repo=repo,pr_number=pr_number)
+            # slack_msg=f"❌ Closed pull request #{pr_number} in {repo} by {user}"
+            send_slack_notification.fn(message=result_text,repo=repo,pr_number=pr_number)
+
             return JSONResponse({"text":f"{result_text}"})
             # slack_msg=f"❌ Closed pull request #{pr_number} in {repo} by {user}"
             # send_slack_notification.fn(message=slack_msg,repo=repo,pr_number=pr_number)
-        else:
-            slack_message=f"{user} triggered {action_id}"
-            state = {
-                "messages": [
-                    HumanMessage(
-                        content=slack_message)]}
+        # else:
+        #     slack_message=f"{user} triggered {action_id}"
+        #     # state = {
+        #     #     "messages": [
+        #     #         HumanMessage(
+        #     #             content=slack_message)]}
 
-            result=agent.invoke(state)
-        return JSONResponse({"text":f"Action {action_id} triggered by {user}"})
+        #     # result=agent.invoke(state)
+        #     return JSONResponse({"text":f"Action {action_id} triggered by {user}"})
     except Exception as e:
         print("❌ Error in /slack/interact:", e)
         return JSONResponse({"error": str(e)}, status_code=500)
