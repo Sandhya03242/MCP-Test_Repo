@@ -1,3 +1,2 @@
-Github and Slack Agent   
------------------------
+Github and Slack Agent
 
