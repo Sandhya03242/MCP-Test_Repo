@@ -2,8 +2,6 @@ import json
 from datetime import datetime
 from pathlib import Path
 from aiohttp import web, ClientSession
-import requests
-from zoneinfo import ZoneInfo
 import asyncio
 import pytz
 
@@ -26,7 +24,6 @@ async def handle_webhook(request):
         event_type=request.headers.get("X-GitHub-Event","unknown")
         print("Received event type:", request.headers.get("X-GitHub-Event"))
         print("Payload repository field:", data.get("repository"))
-        # repo_full_name=None
         repo = data.get("repository", {})
         print("Repo dict received from webhook:", repo)
         repo_full_name = repo.get("full_name")
