@@ -252,7 +252,7 @@ from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 from langgraph.graph.message import add_messages
 from github import gt_tools, github_agent,merge_pull_request, close_pull_request
-from slack import slack_tools,slack_agent
+from slack import slack_tools,slack_agent,send_slack_notification
 import uvicorn
 from multiprocessing import Process
 from datetime import datetime
@@ -330,19 +330,22 @@ app=FastAPI()
 @app.post("/notify")
 async def notify(request: Request):
     payload = await request.json()
-    event_type = payload.get('event_type', 'unknown')
+    if payload.get("pull_request"):
+         event_type="pull_request"
+    else:
+        event_type = payload.get('event_type', 'unknown')
     if event_type=="pull_request":
         action=payload.get("action")
         if action=='synchronize':
             return {"status":"ignored synchronize event"}
-    # Extract repository
+        if action not in ['opened',"reopened"]:
+             return {"status":f"Ignored PR action {action}"}
     repo_info = payload.get("repository")
     if isinstance(repo_info, dict):
         repo = repo_info.get("full_name", "unknown")
     else:
         repo = str(repo_info) if repo_info else "unknown"
 
-    # Extract pr_number with safe fallbacks
     pr_number = payload.get("pr_number")
 
     if not pr_number:
@@ -350,7 +353,7 @@ async def notify(request: Request):
         if isinstance(pr, dict):
             pr_number = pr.get("number")
         if not pr_number:
-            pr_number = payload.get("number")  # fallback
+            pr_number = payload.get("number") 
 
 
     sender = payload.get('sender', 'unknown')
@@ -372,9 +375,11 @@ async def notify(request: Request):
         "pr_number":pr_number
     }
     print("DEBUG: repo =", repo, "pr_number =", pr_number)
-    if event_type=="pull_request" and pr_number and repo:
-        tool_args['repo']=repo
-        tool_args['pr_number']=pr_number
+    # if event_type=="pull_request" and pr_number and repo:
+    #     tool_args['repo']=repo
+    #     tool_args['pr_number']=pr_number
+    slack_response=send_slack_notification.fn(message=message,event_type=event_type,repo=repo,pr_number=pr_number)
+    print("Slack response",slack_response)
     state={
         "messages":[
             HumanMessage(content=f"Send this GitHub event to slack:\n{message}",

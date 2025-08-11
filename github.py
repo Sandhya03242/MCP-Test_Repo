@@ -113,8 +113,6 @@ def summarize_latest_event()->str:
     )
 
 import requests
-repo = "Sandhya03242/MCP-Test_Repo"
-pr_number = "63"
 
 @mcp.tool
 def merge_pull_request(repo: str, pr_number: int) -> str:
