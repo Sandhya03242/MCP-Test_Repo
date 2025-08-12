@@ -80,9 +80,9 @@ def convert_utc_to_ist(utc_str:str)->str:
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 app=FastAPI()
-import asyncio
 from concurrent.futures import ThreadPoolExecutor
 executor=ThreadPoolExecutor(max_workers=3)
+handled_prs=set()
 
 @app.post("/notify")
 async def notify(request: Request):
@@ -111,6 +111,11 @@ async def notify(request: Request):
             pr_number = pr.get("number")
         if not pr_number:
             pr_number = payload.get("number") 
+    if pr_number is not None:
+         if pr_number in handled_prs:
+              return {"status":f"Ignored duplicate event for PR #{pr_number}"}
+         else:
+              handled_prs.add(pr_number)
 
 
     sender = payload.get('sender', 'unknown')
