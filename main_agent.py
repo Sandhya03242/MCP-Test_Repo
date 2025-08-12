@@ -95,6 +95,8 @@ async def notify(request: Request):
             return {"status":"ignored synchronize event"}
         if action not in ['opened',"reopened","closed"]:
              return {"status":f"Ignored PR action {action}"}
+        if action =="closed":
+             return {"status":"ignored closed event to avoid duplicate notification"}
     repo_info = payload.get("repository")
     if isinstance(repo_info, dict):
         repo = repo_info.get("full_name", "unknown")
@@ -110,23 +112,25 @@ async def notify(request: Request):
         if not pr_number:
             pr_number = payload.get("number") 
     if pr_number is not None:
-         if pr_number in handled_prs:
+         event_key=(pr_number,action)
+         if event_key in handled_prs:
               return {"status":f"Ignored duplicate event for PR #{pr_number}"}
          else:
-              handled_prs.add(pr_number)
-
+              handled_prs.add(event_key)
 
     sender = payload.get('sender', 'unknown')
     title=payload.get("title",'')
     description=payload.get("description","")
     timestamp=payload.get("timestamp")
+    compare_branch=payload.get("compare_branch","unknown")
+    base_branch=payload.get("base_branch","unknown")
     if timestamp:
         timestamp=convert_utc_to_ist(timestamp)
         timestamp=timestamp.split("+")[0].replace("T"," ").split(".")[0]
     else:
         timestamp=datetime.now(pytz.timezone("Asia/Kolkata")).strftime("%Y-%m-%d %H:%M:%S IST")
     message = f"🔔 New GitHub event: {event_type} on repository: {repo}"
-    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n"
+    message+=f"\n- Title: {title}\n- Description: {description}\n- Timestamp: {timestamp}\n- User: {sender}\n- Base Branch: {base_branch}\n- Compare Branch: {compare_branch}"
     print(message)
     tool_args={
         "message":message,
@@ -164,7 +168,8 @@ async def handler_slack_actions(request: Request):
             except (ValueError, TypeError):
                     return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
             result_text=merge_pull_request.fn(repo=repo,pr_number=pr_number)
-            return JSONResponse({"text":f"{result_text}"})
+            send_slack_notification.fn(message=result_text,repo=repo,pr_number=pr_number)
+            # return JSONResponse({"text":f"{result_text}"})
 
         elif action_id=='cancel_action':
             try:

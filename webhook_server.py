@@ -36,6 +36,9 @@ async def handle_webhook(request):
             pr = data.get("pull_request")
             if pr:
                 base_branch = pr.get("base", {}).get("ref")
+                print("base_brach: ",base_branch)
+                compare_branch = pr.get("head", {}).get("ref")
+                print("compare_branch: ",compare_branch)
                 branch_name = base_branch
         elif event_type == "push":
             ref = data.get("ref", "")
@@ -111,7 +114,9 @@ async def handle_webhook(request):
             "pr_number":pr_number,
             "title":title,
             "description":description,
-            "sender":data.get("sender",{}).get("login")
+            "sender":data.get("sender",{}).get("login"),
+            "base_branch":base_branch,
+            "compare_branch":compare_branch
         }
         events=[]
         if EVENTS_FILE.exists():
