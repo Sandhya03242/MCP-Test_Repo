@@ -5,7 +5,7 @@ from langchain_core.messages import HumanMessage, BaseMessage, SystemMessage
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, Annotated, Sequence
 from langgraph.graph.message import add_messages
-from github import gt_tools, github_agent,merge_pull_request, close_pull_request
+from github import gt_tools, github_agent,merge_pull_request, close_pull_request, get_pull_request_details
 from slack import slack_tools,slack_agent,send_slack_notification
 import uvicorn
 from multiprocessing import Process
@@ -80,8 +80,6 @@ def convert_utc_to_ist(utc_str:str)->str:
 
 # ----------------------------------------------------------------------------------------------------------------------------------
 app=FastAPI()
-from concurrent.futures import ThreadPoolExecutor
-executor=ThreadPoolExecutor(max_workers=3)
 handled_prs=set()
 
 @app.post("/notify")
@@ -138,22 +136,6 @@ async def notify(request: Request):
     }
     slack_response=send_slack_notification.fn(message=message,event_type=event_type,repo=repo,pr_number=pr_number)
     print("Slack response",slack_response)
-    # state={
-    #     "messages":[
-    #         HumanMessage(content=f"Send this GitHub event to slack:\n{message}",
-    #                      additional_kwargs={
-    #                          'tool_calls':[{
-    #                              "id":"slack_call_1",
-    #                              "name":"send_slack_notification",
-    #                              "args":tool_args
-    #                          }]
-    #                      })
-    #     ]
-    # }
-    # loop=asyncio.get_event_loop()
-    # result=await loop.run_in_executor(executor,agent.invoke,slack_response)
-    # # result=agent.invoke(state)
-    # print("Agent: ", result['messages'][-1].content)
     return {"status": "notified and send to slack"}
 # -------------------------------------------------------------------------------------------------------------------------------
 
@@ -189,23 +171,14 @@ async def handler_slack_actions(request: Request):
                     pr_number = int(pr_number)
             except (ValueError, TypeError):
                     return JSONResponse({"error": "Invalid or missing PR number"}, status_code=400)
+            pr_details=get_pull_request_details.fn(repo=repo,pr_number=pr_number)
+            if isinstance(pr_details,dict) and pr_details.get("merged"):
+                 return JSONResponse({"text":f"PR #{pr_number} in {repo} is already merged. Cancel Skipped."})
             
             result_text=close_pull_request.fn(repo=repo,pr_number=pr_number)
-            # slack_msg=f"❌ Closed pull request #{pr_number} in {repo} by {user}"
             send_slack_notification.fn(message=result_text,repo=repo,pr_number=pr_number)
 
             return JSONResponse({"text":f"{result_text}"})
-            # slack_msg=f"❌ Closed pull request #{pr_number} in {repo} by {user}"
-            # send_slack_notification.fn(message=slack_msg,repo=repo,pr_number=pr_number)
-        # else:
-        #     slack_message=f"{user} triggered {action_id}"
-        #     # state = {
-        #     #     "messages": [
-        #     #         HumanMessage(
-        #     #             content=slack_message)]}
-
-        #     # result=agent.invoke(state)
-        #     return JSONResponse({"text":f"Action {action_id} triggered by {user}"})
     except Exception as e:
         print("❌ Error in /slack/interact:", e)
         return JSONResponse({"error": str(e)}, status_code=500)

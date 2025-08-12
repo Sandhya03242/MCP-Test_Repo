@@ -158,12 +158,28 @@ def close_pull_request(repo: str, pr_number: int) -> str:
     except Exception as e:
         logging.error(f"Exception while closing PR: {e}")
         return f"❌ Exception while closing PR:{str(e)}"
+    
+@mcp.tool
+def get_pull_request_details(repo:str,pr_number:int)->dict:
+    """Get details of a pull request from Github API"""
+    url=f"https://api.github.com/repos/{repo}/pulls/{pr_number}"
+    token=os.environ.get("GITHUB_PAT")
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json"
+    }
+    response=requests.get(url,headers=headers)
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"error":f"Failed to get PR detail: {response.status_code}{response.text}"} 
+
 
 
 class GitHubAgentState(TypedDict):
     messages:List[Union[HumanMessage,AIMessage,ToolMessage]]
 
-gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn,merge_pull_request.fn,close_pull_request.fn]
+gt_tools=[get_recent_actions_events.fn,get_workflow_status.fn,get_repository_detail.fn,summarize_latest_event.fn,merge_pull_request.fn,close_pull_request.fn,get_pull_request_details.fn]
 github_tools= {tool.__name__:tool for tool in gt_tools}
 
 def github_agent(state:GitHubAgentState)->GitHubAgentState:
