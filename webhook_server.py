@@ -31,7 +31,8 @@ async def handle_webhook(request):
         description=''
         sender=data.get("sender",{}).get("login")
         branch_name = None
-        
+        base_branch = None
+        compare_branch = None
         if event_type == "pull_request":
             pr = data.get("pull_request")
             if pr:
@@ -86,6 +87,7 @@ async def handle_webhook(request):
             if commits:
                 title=f"{len(commits)} commits pushed"
                 description="\n".join(commit.get("message",'') for commit in commits)
+                print(f"Received push event :{title} on branch {branch_name} by {sender}")
         elif event_type=='release':
             release=data.get("release",{})
             title=release.get("name",release.get("tag_name",""))

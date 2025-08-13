@@ -34,6 +34,12 @@ def should_continue(state:AgentState):
 sys_prompt="""You are an assistant that helps with GitHub and slack workflows. Use GitHub tools for repo queries and slack tools for team notifications."""
 
 def call_llm(state:AgentState)->AgentState:
+    result=state['messages'][-1].content.lower()
+    github_keywords=[
+         "pull_request","merge","commit","branch","repository","repo","github","pr","pr_number","events","event","git","checkout","tag","clone"
+    ]
+    if not any(g_key in result for g_key in github_keywords):
+         return {"messages":state['messages']+[HumanMessage(content="Sorry, I don't have information about that.")]}
     messages=[SystemMessage(content=sys_prompt)]+list(state['messages'])
     response=llm.invoke(messages)
     return {"messages":state['messages']+[response]}
@@ -85,10 +91,17 @@ handled_prs=set()
 @app.post("/notify")
 async def notify(request: Request):
     payload = await request.json()
-    if payload.get("pull_request"):
-         event_type="pull_request"
-    else:
-        event_type = payload.get('event_type', 'unknown')
+    event_type = payload.get('event_type', 'unknown')
+    sender = payload.get('sender', 'unknown')
+    title=payload.get("title",'')
+    description=payload.get("description","")
+    timestamp=payload.get("timestamp")
+    compare_branch=payload.get("compare_branch","unknown")
+    base_branch="main"
+    repo_info = payload.get("repository")
+    pr_number = payload.get("pr_number")
+
+
     if event_type=="pull_request":
         action=payload.get("action")
         if action=='synchronize':
@@ -97,13 +110,12 @@ async def notify(request: Request):
              return {"status":f"Ignored PR action {action}"}
         if action =="closed":
              return {"status":"ignored closed event to avoid duplicate notification"}
-    repo_info = payload.get("repository")
+        
     if isinstance(repo_info, dict):
         repo = repo_info.get("full_name", "unknown")
     else:
         repo = str(repo_info) if repo_info else "unknown"
 
-    pr_number = payload.get("pr_number")
 
     if not pr_number:
         pr = payload.get("pull_request")
@@ -118,12 +130,7 @@ async def notify(request: Request):
          else:
               handled_prs.add(event_key)
 
-    sender = payload.get('sender', 'unknown')
-    title=payload.get("title",'')
-    description=payload.get("description","")
-    timestamp=payload.get("timestamp")
-    compare_branch=payload.get("compare_branch","unknown")
-    base_branch=payload.get("base_branch","unknown")
+
     if timestamp:
         timestamp=convert_utc_to_ist(timestamp)
         timestamp=timestamp.split("+")[0].replace("T"," ").split(".")[0]
